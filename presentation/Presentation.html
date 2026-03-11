@@ -134,25 +134,31 @@
 </section>
 <section id="dataset-overview" class="slide level2">
 <h2>Dataset Overview</h2>
+<div style="font-size: 0.7em;">
 <div class="cell">
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 867  53</code></pre>
+<pre><code>Dimensions: 867 observations × 53 variables</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 3 × 53
-  State    Year `Population.12-17` `Population.18-25` `Population.26+`
-  &lt;chr&gt;   &lt;dbl&gt;              &lt;dbl&gt;              &lt;dbl&gt;            &lt;dbl&gt;
-1 Alabama  2002             380805             499453          2812905
-2 Alaska   2002              69400              62791           368460
-3 Arizona  2002             485521             602265          3329482
-# ℹ 48 more variables: `Totals.Alcohol.Use Disorder Past Year.12-17` &lt;dbl&gt;,
-#   `Totals.Alcohol.Use Disorder Past Year.18-25` &lt;dbl&gt;,
-#   `Totals.Alcohol.Use Disorder Past Year.26+` &lt;dbl&gt;,
-#   `Rates.Alcohol.Use Disorder Past Year.12-17` &lt;dbl&gt;,
-#   `Rates.Alcohol.Use Disorder Past Year.18-25` &lt;dbl&gt;,
-#   `Rates.Alcohol.Use Disorder Past Year.26+` &lt;dbl&gt;,
-#   `Totals.Alcohol.Use Past Month.12-17` &lt;dbl&gt;, …</code></pre>
+<pre><code>Years: 2002 - 2018 </code></pre>
 </div>
+<div class="cell-output cell-output-stdout">
+<pre><code>States: 51 </code></pre>
+</div>
+</div>
+<p><strong>Key Variables:</strong></p>
+<ul>
+<li><strong>Demographics</strong>: State, Year, Population by age group (12-17, 18-25, 26+)</li>
+<li><strong>Substances</strong>: Alcohol, Marijuana, Tobacco, Cocaine</li>
+<li><strong>Metrics</strong>: Totals (counts) and Rates (per 1000 population)</li>
+<li><strong>Time frames</strong>: Past month, past year usage</li>
+</ul>
+<p><strong>Age Groups:</strong></p>
+<ul>
+<li>12-17 (adolescents)</li>
+<li>18-25 (young adults)</li>
+<li>26+ (adults)</li>
+</ul>
 </div>
 </section>
 <section id="marijuana-trends-by-age" class="slide level2">
