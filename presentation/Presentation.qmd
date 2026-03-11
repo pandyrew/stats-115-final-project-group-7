@@ -11,7 +11,7 @@ library(ggplot2)
 library(tidyr)
 library(stringr)
 
-drugs <- read_csv("../data/drugs.csv")
+drugs <- read_csv("data/drugs.csv")
 ```
 
 ## Dataset Overview
@@ -131,3 +131,9 @@ drugs %>%
   labs(title = "All Substances (18-25 Age Group)") +
   theme(legend.position = "none")
 ```
+
+## Initial Analysis
+
+From Marijuana Trends by age. (The complete pool of all states)
+
+-   Age group from 18-25 display increasing rate per 1000 over time, and significantly higher compare to the other two age groups.
