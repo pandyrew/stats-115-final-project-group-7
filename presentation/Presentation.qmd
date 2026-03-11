@@ -4,27 +4,130 @@ format: revealjs
 editor: visual
 ---
 
-## Quarto
-
 ```{r}
 library(readr)
-drugs <- read_csv("data/drugs.csv")
-View(drugs)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(stringr)
+
+drugs <- read_csv("../data/drugs.csv")
 ```
 
-Quarto enables you to weave together content and executable code into a finished presentation. To learn more about Quarto presentations see <https://quarto.org/docs/presentations/>.
-
-## Bullets
-
-When you click the **Render** button a document will be generated that includes:
-
--   Content authored with markdown
--   Output from executable code
-
-## Code
-
-When you click the **Render** button a presentation will be generated that includes both content and the output of embedded code. You can embed code like this:
+## Dataset Overview
 
 ```{r}
+dim(drugs)
+head(drugs, 3)
+```
 
+## Marijuana Trends by Age
+
+```{r fig.width=10, fig.height=6}
+drugs %>%
+  select(Year, 
+         `Rates.Marijuana.Used Past Month.12-17`,
+         `Rates.Marijuana.Used Past Month.18-25`,
+         `Rates.Marijuana.Used Past Month.26+`) %>%
+  pivot_longer(cols = -Year, names_to = "Age_Group", values_to = "Rate") %>%
+  mutate(Age_Group = str_extract(Age_Group, "12-17|18-25|26\\+")) %>%
+  ggplot(aes(x = Year, y = Rate, color = Age_Group)) +
+  geom_smooth(se = TRUE) +
+  labs(title = "Marijuana Use Over Time", y = "Rate per 1000")
+```
+
+## Alcohol Disorder Trends
+
+```{r fig.width=10, fig.height=6}
+drugs %>%
+  select(Year, 
+         `Rates.Alcohol.Use Disorder Past Year.12-17`,
+         `Rates.Alcohol.Use Disorder Past Year.18-25`,
+         `Rates.Alcohol.Use Disorder Past Year.26+`) %>%
+  pivot_longer(cols = -Year, names_to = "Age_Group", values_to = "Rate") %>%
+  mutate(Age_Group = str_extract(Age_Group, "12-17|18-25|26\\+")) %>%
+  ggplot(aes(x = Year, y = Rate, color = Age_Group)) +
+  geom_smooth(se = TRUE) +
+  labs(title = "Alcohol Use Disorder Over Time", y = "Rate per 1000")
+```
+
+## Tobacco Trends
+
+```{r fig.width=10, fig.height=6}
+drugs %>%
+  select(Year, 
+         `Rates.Tobacco.Cigarette Past Month.12-17`,
+         `Rates.Tobacco.Cigarette Past Month.18-25`,
+         `Rates.Tobacco.Cigarette Past Month.26+`) %>%
+  pivot_longer(cols = -Year, names_to = "Age_Group", values_to = "Rate") %>%
+  mutate(Age_Group = str_extract(Age_Group, "12-17|18-25|26\\+")) %>%
+  ggplot(aes(x = Year, y = Rate, color = Age_Group)) +
+  geom_smooth(se = TRUE) +
+  labs(title = "Tobacco Use Over Time", y = "Rate per 1000")
+```
+
+## Top States: Marijuana Use
+
+```{r fig.width=10, fig.height=7}
+drugs %>%
+  filter(Year == max(Year)) %>%
+  arrange(desc(`Rates.Marijuana.Used Past Month.18-25`)) %>%
+  slice(1:15) %>%
+  ggplot(aes(x = reorder(State, `Rates.Marijuana.Used Past Month.18-25`), 
+             y = `Rates.Marijuana.Used Past Month.18-25`)) +
+  geom_col(fill = "steelblue") +
+  coord_flip() +
+  labs(title = "Top 15 States: Marijuana Use (18-25)", x = "", y = "Rate per 1000")
+```
+
+## Distribution: Marijuana Use
+
+```{r fig.width=10, fig.height=6}
+drugs %>%
+  ggplot(aes(x = `Rates.Marijuana.Used Past Month.18-25`)) +
+  geom_histogram(bins = 30, fill = "seagreen", alpha = 0.7) +
+  geom_density(aes(y = after_stat(count)), size = 1.2, color = "darkgreen") +
+  labs(title = "Distribution of Marijuana Use Rates (18-25)", x = "Rate per 1000")
+```
+
+## Correlation Matrix
+
+```{r fig.width=10, fig.height=8}
+cor_data <- drugs %>%
+  select(Marijuana = `Rates.Marijuana.Used Past Month.18-25`,
+         Alcohol = `Rates.Alcohol.Use Disorder Past Year.18-25`,
+         Tobacco = `Rates.Tobacco.Cigarette Past Month.18-25`,
+         Cocaine = `Rates.Illicit Drugs.Cocaine Used Past Year.18-25`)
+
+cor_matrix <- cor(cor_data, use = "complete.obs")
+
+cor_df <- as.data.frame(as.table(cor_matrix))
+names(cor_df) <- c("Var1", "Var2", "Correlation")
+
+ggplot(cor_df, aes(x = Var1, y = Var2, fill = Correlation)) +
+  geom_tile(color = "white") +
+  geom_text(aes(label = round(Correlation, 2)), size = 5) +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", 
+                       midpoint = 0, limits = c(-1, 1)) +
+  labs(title = "Correlation Between Substances (18-25)") +
+  theme_minimal() +
+  theme(axis.title = element_blank(),
+        axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+## All Substance Trends
+
+```{r fig.width=12, fig.height=7}
+drugs %>%
+  select(Year, 
+         Alcohol = `Rates.Alcohol.Use Past Month.18-25`,
+         Marijuana = `Rates.Marijuana.Used Past Month.18-25`,
+         Tobacco = `Rates.Tobacco.Cigarette Past Month.18-25`,
+         Cocaine = `Rates.Illicit Drugs.Cocaine Used Past Year.18-25`) %>%
+  pivot_longer(cols = -Year, names_to = "Substance", values_to = "Rate") %>%
+  ggplot(aes(x = Year, y = Rate, color = Substance)) +
+  geom_smooth(se = TRUE) +
+  facet_wrap(~Substance, scales = "free_y") +
+  labs(title = "All Substances (18-25 Age Group)") +
+  theme(legend.position = "none")
 ```
