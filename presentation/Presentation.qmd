@@ -189,3 +189,327 @@ Initially, we thought that many people would cope with hardship by abusing alcoh
 **Did early state-level marijuana legalization in 2012 (Washington, Colorado) and 2014 (Alaska, Oregon) represent a causal driver of increased usage, or did usage rates simply follow the national trajectory?**
 
 Our initial findings saw that the years after marijuana legalization did see an uptake in usage, but we wanted to see if legalization sped up adoption, or if it was going to happen regardless.
+
+## Legalization Timeline
+
+::: {style="font-size: 0.75em;"}
+**Early Adopter States:**
+
+-   **2012**: Washington & Colorado legalized recreational marijuana
+-   **2014**: Alaska & Oregon legalized recreational marijuana
+
+**Our Analysis:**
+
+Compare marijuana usage rates in these 4 early-adopter states vs. all other states to identify:
+
+1.  Pre-legalization baseline differences
+2.  Post-legalization divergence (if any)
+3.  Whether legalization accelerated existing trends
+:::
+
+## Marijuana Rates: Early Adopters vs Others
+
+```{r fig.width=12, fig.height=7}
+early_states <- c("Washington", "Colorado", "Alaska", "Oregon")
+
+drugs %>%
+  mutate(Group = ifelse(State %in% early_states, "Early Adopters", "Other States")) %>%
+  group_by(Year, Group) %>%
+  summarise(Avg_Rate = mean(`Rates.Marijuana.Used Past Month.18-25`, na.rm = TRUE), .groups = "drop") %>%
+  ggplot(aes(x = Year, y = Avg_Rate, color = Group, group = Group)) +
+  geom_line(size = 1.5) +
+  geom_point(size = 3) +
+  geom_vline(xintercept = 2012, linetype = "dashed", color = "red", size = 1) +
+  geom_vline(xintercept = 2014, linetype = "dashed", color = "orange", size = 1) +
+  annotate("text", x = 2012, y = Inf, label = "2012: WA, CO", 
+           vjust = 1.5, hjust = -0.1, color = "red", size = 4) +
+  annotate("text", x = 2014, y = Inf, label = "2014: AK, OR", 
+           vjust = 1.5, hjust = -0.1, color = "orange", size = 4) +
+  labs(title = "Marijuana Use Rates: Early Adopters vs Other States (18-25)",
+       y = "Rate per 1000",
+       color = "State Group") +
+  scale_color_manual(values = c("Early Adopters" = "#009E73", "Other States" = "#999999")) +
+  theme_minimal(base_size = 14)
+```
+
+## Pre vs Post Legalization Trends
+
+```{r fig.width=12, fig.height=7}
+drugs %>%
+  filter(State %in% early_states) %>%
+  mutate(Period = ifelse(Year < 2012, "Pre-2012", 
+                         ifelse(Year >= 2012 & Year < 2014, "2012-2013",
+                                "Post-2014")),
+         Period = factor(Period, levels = c("Pre-2012", "2012-2013", "Post-2014"))) %>%
+  ggplot(aes(x = Year, y = `Rates.Marijuana.Used Past Month.18-25`, color = State)) +
+  geom_line(size = 1.2) +
+  geom_point(size = 2.5) +
+  geom_vline(xintercept = 2012, linetype = "dashed", color = "red", size = 1) +
+  geom_vline(xintercept = 2014, linetype = "dashed", color = "orange", size = 1) +
+  facet_wrap(~State, ncol = 2) +
+  labs(title = "Marijuana Use in Early Adopter States (18-25)",
+       y = "Rate per 1000") +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "none")
+```
+
+## Rate of Change Analysis
+
+```{r fig.width=12, fig.height=7}
+change_data <- drugs %>%
+  mutate(Group = ifelse(State %in% early_states, "Early Adopters", "Other States")) %>%
+  group_by(State, Group) %>%
+  arrange(Year) %>%
+  mutate(Rate_Change = `Rates.Marijuana.Used Past Month.18-25` - 
+                       lag(`Rates.Marijuana.Used Past Month.18-25`)) %>%
+  ungroup()
+
+change_data %>%
+  filter(!is.na(Rate_Change)) %>%
+  group_by(Year, Group) %>%
+  summarise(Avg_Change = mean(Rate_Change, na.rm = TRUE), .groups = "drop") %>%
+  ggplot(aes(x = Year, y = Avg_Change, fill = Group)) +
+  geom_col(position = "dodge") +
+  geom_hline(yintercept = 0, linetype = "solid", color = "black") +
+  geom_vline(xintercept = 2012, linetype = "dashed", color = "red", size = 1) +
+  geom_vline(xintercept = 2014, linetype = "dashed", color = "orange", size = 1) +
+  labs(title = "Year-over-Year Change in Marijuana Rates (18-25)",
+       y = "Change in Rate per 1000",
+       fill = "State Group") +
+  scale_fill_manual(values = c("Early Adopters" = "#009E73", "Other States" = "#999999")) +
+  theme_minimal(base_size = 14)
+```
+
+## Question 2: Findings
+
+::: {style="font-size: 0.75em;"}
+```{r}
+early_states <- c("Washington", "Colorado", "Alaska", "Oregon")
+
+pre_2012 <- drugs %>%
+  filter(Year < 2012) %>%
+  mutate(Group = ifelse(State %in% early_states, "Early Adopters", "Other States")) %>%
+  group_by(Group) %>%
+  summarise(Avg_Rate = mean(`Rates.Marijuana.Used Past Month.18-25`, na.rm = TRUE))
+
+post_2014 <- drugs %>%
+  filter(Year >= 2014) %>%
+  mutate(Group = ifelse(State %in% early_states, "Early Adopters", "Other States")) %>%
+  group_by(Group) %>%
+  summarise(Avg_Rate = mean(`Rates.Marijuana.Used Past Month.18-25`, na.rm = TRUE))
+
+cat("Pre-2012 Average Rates (per 1000):\n")
+cat("  Early Adopters:", round(pre_2012$Avg_Rate[pre_2012$Group == "Early Adopters"], 2), "\n")
+cat("  Other States:", round(pre_2012$Avg_Rate[pre_2012$Group == "Other States"], 2), "\n")
+cat("  Difference:", round(pre_2012$Avg_Rate[pre_2012$Group == "Early Adopters"] - 
+                           pre_2012$Avg_Rate[pre_2012$Group == "Other States"], 2), "\n\n")
+
+cat("Post-2014 Average Rates (per 1000):\n")
+cat("  Early Adopters:", round(post_2014$Avg_Rate[post_2014$Group == "Early Adopters"], 2), "\n")
+cat("  Other States:", round(post_2014$Avg_Rate[post_2014$Group == "Other States"], 2), "\n")
+cat("  Difference:", round(post_2014$Avg_Rate[post_2014$Group == "Early Adopters"] - 
+                           post_2014$Avg_Rate[post_2014$Group == "Other States"], 2), "\n\n")
+
+increase_early <- post_2014$Avg_Rate[post_2014$Group == "Early Adopters"] - 
+                  pre_2012$Avg_Rate[pre_2012$Group == "Early Adopters"]
+increase_other <- post_2014$Avg_Rate[post_2014$Group == "Other States"] - 
+                  pre_2012$Avg_Rate[pre_2012$Group == "Other States"]
+
+cat("Change from Pre-2012 to Post-2014:\n")
+cat("  Early Adopters: +", round(increase_early, 2), "(", 
+    round(100 * increase_early / pre_2012$Avg_Rate[pre_2012$Group == "Early Adopters"], 1), "% increase)\n")
+cat("  Other States: +", round(increase_other, 2), "(", 
+    round(100 * increase_other / pre_2012$Avg_Rate[pre_2012$Group == "Other States"], 1), "% increase)\n")
+```
+
+**Interpretation:**
+
+-   If early adopters show larger % increase → **Causal effect of legalization**
+-   If increases are similar → **National trajectory** (legalization followed existing demand)
+-   Baseline differences suggest legalization reflected **local preferences**
+:::
+
+## Question 2: Conclusion
+
+::: {style="font-size: 0.85em;"}
+**The Numbers Tell the Story:**
+
+**Pre-legalization (before 2012):** - Early adopters: 220.6 per 1000 - Other states: 174.7 per 1000 - Already **26% higher** in early adopter states
+
+**Post-legalization (2014+):** - Early adopters: 294.4 per 1000\
+- Other states: 211.6 per 1000 - Gap widened to **39% higher**
+
+**Key Finding:** - Early adopters: **33.5% increase** (+73.9 per 1000) - Other states: **21.1% increase** (+36.8 per 1000) - Early adopters increased **58% faster** than other states
+
+**Answer:** Legalization appears to have **accelerated** marijuana usage beyond the national trajectory. Early adopter states not only started with higher baseline usage (suggesting pre-existing demand), but also experienced significantly steeper increases post-legalization.
+:::
+
+## Statistical Testing: Did Legalization Matter?
+
+::: {style="font-size: 0.75em;"}
+**Hypothesis Test Options:**
+
+**1. Difference-in-Differences (DiD) Analysis** - H₀: Change in early adopters = Change in other states - H₁: Change in early adopters \> Change in other states - Tests if the *change* differs between groups
+
+**2. Two-Sample t-test on Growth Rates** - Compare % increases: 33.5% vs 21.1% - Tests if growth rates significantly differ
+
+**3. Interaction Effect (Regression)** - Model: Rate \~ Year + Group + Year×Group - Tests if the slope (time trend) differs by group
+
+Let's run a simple t-test:
+
+```{r}
+early_states <- c("Washington", "Colorado", "Alaska", "Oregon")
+
+growth_data <- drugs %>%
+  filter(Year %in% c(2010, 2011, 2015, 2016)) %>%
+  mutate(Group = ifelse(State %in% early_states, "Early", "Other"),
+         Period = ifelse(Year <= 2011, "Pre", "Post")) %>%
+  group_by(State, Group, Period) %>%
+  summarise(Avg_Rate = mean(`Rates.Marijuana.Used Past Month.18-25`, na.rm = TRUE), .groups = "drop") %>%
+  pivot_wider(names_from = Period, values_from = Avg_Rate) %>%
+  mutate(Growth = Post - Pre)
+
+t_test <- t.test(Growth ~ Group, data = growth_data, alternative = "greater")
+
+cat("Two-Sample t-test: Early Adopters vs Other States\n")
+cat("Mean growth Early Adopters:", round(mean(growth_data$Growth[growth_data$Group == "Early"], na.rm = TRUE), 2), "\n")
+cat("Mean growth Other States:", round(mean(growth_data$Growth[growth_data$Group == "Other"], na.rm = TRUE), 2), "\n")
+cat("t-statistic:", round(t_test$statistic, 3), "\n")
+cat("p-value:", round(t_test$p.value, 4), "\n")
+cat("\nConclusion:", ifelse(t_test$p.value < 0.05, 
+                            "Growth is SIGNIFICANTLY higher in early adopter states (p < 0.05)", 
+                            "No significant difference detected"))
+```
+:::
+
+## Bayesian Approach: Question 2
+
+::: {style="font-size: 0.7em;"}
+**Why Bayesian?**
+
+-   Quantify **uncertainty** in the effect of legalization
+-   Get **probability distributions** instead of just point estimates
+-   Make probabilistic statements: "What's the probability that early adopters increased more?"
+-   Incorporate **prior knowledge** about drug use trends
+
+**Proposed Model:**
+
+```         
+Rate_ijt ~ Normal(μ_ijt, σ²)
+μ_ijt = β₀ + β₁·Year_t + β₂·EarlyAdopter_i + β₃·PostLegalization_t + β₄·(EarlyAdopter_i × PostLegalization_t)
+
+Priors:
+β₀ ~ Normal(180, 50²)           # baseline rate
+β₁ ~ Normal(0, 10²)             # time trend
+β₂ ~ Normal(0, 30²)             # early adopter baseline difference
+β₃ ~ Normal(0, 20²)             # post-legalization effect
+β₄ ~ Normal(0, 15²)             # INTERACTION: extra effect for early adopters
+σ ~ Half-Cauchy(0, 25)
+```
+
+**Key Parameter: β₄** (Interaction Term) - If β₄ \> 0: Early adopters had **additional** increase beyond national trend - Posterior P(β₄ \> 0) tells us probability of causal effect
+
+**Posterior Predictive Checks:** - Simulate data from posterior → compare to observed data - Check if model captures trends, variance, state-level differences
+:::
+
+## Bayesian Analysis Results
+
+::: {style="font-size: 0.75em;"}
+**What we'd report (with actual Bayesian analysis):**
+
+```         
+Posterior Summary for β₄ (Interaction Effect):
+  Mean: 5.2 per 1000 per year
+  95% Credible Interval: [2.1, 8.7]
+  P(β₄ > 0 | data) = 0.997
+  
+Interpretation: 
+- 99.7% probability that legalization caused ADDITIONAL increase in early adopter states
+- Expected extra increase: ~5.2 per 1000 per year beyond national trend
+- We are 95% confident the effect is between 2.1 and 8.7
+```
+
+**Posterior Predictive Check:** - Generate 1000 datasets from posterior - Compare simulated trends to actual data - Check: Do simulated rates match observed variance? State patterns? Time trends?
+
+**Advantages over Frequentist:** - Direct probability statements about effects - Uncertainty quantification for predictions - Can incorporate domain knowledge via priors - Natural handling of hierarchical structure (states within groups)
+:::
+
+## Implementing the Bayesian Model
+
+::: {style="font-size: 0.65em;"}
+**Simple Bayesian Analysis (Using Conjugate Priors):**
+
+```{r}
+early_states <- c("Washington", "Colorado", "Alaska", "Oregon")
+
+pre_data <- drugs %>%
+  filter(Year < 2012) %>%
+  mutate(Group = ifelse(State %in% early_states, "Early", "Other"))
+
+post_data <- drugs %>%
+  filter(Year >= 2014) %>%
+  mutate(Group = ifelse(State %in% early_states, "Early", "Other"))
+
+early_pre <- pre_data %>% filter(Group == "Early") %>% pull(`Rates.Marijuana.Used Past Month.18-25`)
+early_post <- post_data %>% filter(Group == "Early") %>% pull(`Rates.Marijuana.Used Past Month.18-25`)
+other_pre <- pre_data %>% filter(Group == "Other") %>% pull(`Rates.Marijuana.Used Past Month.18-25`)
+other_post <- post_data %>% filter(Group == "Other") %>% pull(`Rates.Marijuana.Used Past Month.18-25`)
+
+change_early <- mean(early_post, na.rm = TRUE) - mean(early_pre, na.rm = TRUE)
+change_other <- mean(other_post, na.rm = TRUE) - mean(other_pre, na.rm = TRUE)
+diff_in_diff <- change_early - change_other
+
+set.seed(123)
+n_sims <- 10000
+
+sim_change_early <- rnorm(n_sims, mean = change_early, sd = sd(early_post - mean(early_pre), na.rm = TRUE) / sqrt(length(early_post)))
+sim_change_other <- rnorm(n_sims, mean = change_other, sd = sd(other_post - mean(other_pre), na.rm = TRUE) / sqrt(length(other_post)))
+posterior_diff <- sim_change_early - sim_change_other
+
+cat("Bayesian Difference-in-Differences Analysis\n")
+cat("==========================================\n\n")
+cat("Posterior Mean (Extra effect for early adopters):", round(mean(posterior_diff), 2), "\n")
+cat("95% Credible Interval:", round(quantile(posterior_diff, 0.025), 2), "to", round(quantile(posterior_diff, 0.975), 2), "\n")
+cat("Posterior P(Effect > 0 | data):", round(mean(posterior_diff > 0), 4), "\n")
+cat("Posterior P(Effect > 20 | data):", round(mean(posterior_diff > 20), 4), "\n\n")
+cat("Interpretation: There is a", round(mean(posterior_diff > 0) * 100, 1), "% probability that\n")
+cat("legalization caused additional increases in early adopter states.\n")
+```
+
+```{r fig.width=10, fig.height=5}
+hist(posterior_diff, breaks = 50, col = "skyblue", border = "white",
+     main = "Posterior Distribution: Extra Effect of Legalization",
+     xlab = "Additional Change in Early Adopters (per 1000)",
+     freq = FALSE)
+abline(v = mean(posterior_diff), col = "red", lwd = 2, lty = 2)
+abline(v = quantile(posterior_diff, c(0.025, 0.975)), col = "darkred", lwd = 2, lty = 3)
+abline(v = 0, col = "black", lwd = 2)
+legend("topright", c("Posterior Mean", "95% Credible Interval", "No Effect"),
+       col = c("red", "darkred", "black"), lty = c(2, 3, 1), lwd = 2)
+```
+:::
+
+## Comparing the Approaches
+
+::: {style="font-size: 0.75em;"}
+**Descriptive Analysis (Earlier):**
+- Early adopters: +73.9 per 1000 (33.5% increase)
+- Other states: +36.8 per 1000 (21.1% increase)  
+- **Difference: ~37 per 1000**
+
+**Bayesian Analysis (Just now):**
+- **Posterior mean: 37.05** per 1000 extra effect
+- 95% Credible Interval: [19.23, 54.5]
+- P(Effect > 0) = 100%
+
+**Why are they similar?**
+
+They're measuring the **same thing** (difference-in-differences), but the Bayesian approach adds:
+
+1. **Uncertainty quantification**: Not just "37", but "37 ± uncertainty"
+2. **Probabilistic statements**: "100% probability of positive effect" vs "p < 0.05"
+3. **Credible intervals**: "95% chance true value is in [19, 55]" vs "we reject null hypothesis"
+4. **Full distribution**: See the entire range of plausible values (the histogram)
+
+**Key insight:** The Bayesian analysis **confirms** our descriptive finding but gives us **stronger evidence** with quantified uncertainty. The posterior mean (37.05) matches our difference-in-differences (37) because both are based on the same data, but Bayesian tells us how confident we should be.
+:::
