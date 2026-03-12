@@ -17,11 +17,13 @@ drugs <- read_csv("data/drugs.csv")
 ```
 
 ## Background & Motivation
+
 TO DO
 
 ## Our Research Question
--  How do years of economic hardship (2008) affect alcohol rates across all age groups?
--  Did early state-level marijuana legalization in 2012 (Washington, Colorado) and 2014 (Alaska, Oregon) represent a causal driver of increased usage, or did usage rates simply follow the national trajectory?
+
+-   How do years of economic hardship (2008) affect alcohol rates across all age groups?
+-   Did early state-level marijuana legalization in 2012 (Washington, Colorado) and 2014 (Alaska, Oregon) represent a causal driver of increased usage, or did usage rates simply follow the national trajectory?
 
 ## Dataset Overview
 
@@ -175,3 +177,15 @@ drugs %>%
   labs(title = "All Substances (18-25 Age Group)") +
   theme(legend.position = "none")
 ```
+
+## Question 1: Economic Hardship
+
+**How do years of economic hardship (2008) affect alcohol rates across all age groups?**
+
+Initially, we thought that many people would cope with hardship by abusing alcohol (as seen in popular culture), but we also figured that many households might also employ a tighter monetary policy to save some money.
+
+## Question 2: Marijuana Legalization
+
+**Did early state-level marijuana legalization in 2012 (Washington, Colorado) and 2014 (Alaska, Oregon) represent a causal driver of increased usage, or did usage rates simply follow the national trajectory?**
+
+Our initial findings saw that the years after marijuana legalization did see an uptake in usage, but we wanted to see if legalization sped up adoption, or if it was going to happen regardless.
