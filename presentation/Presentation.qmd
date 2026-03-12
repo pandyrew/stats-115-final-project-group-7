@@ -1,5 +1,7 @@
 ---
-title: "Presentation"
+title: "Best Presentation"
+subtitle: "Stats 115 Final Project"
+author: "Charles Gao<br>Andrew Hwang<br>Jason Huffstutter<br>Andrew Hahm"
 format: revealjs
 editor: visual
 ---
@@ -13,6 +15,13 @@ library(stringr)
 
 drugs <- read_csv("data/drugs.csv")
 ```
+
+## Background & Motivation
+TO DO
+
+## Our Research Question
+-  How do years of economic hardship (2008) affect alcohol rates across all age groups?
+-  Did early state-level marijuana legalization in 2012 (Washington, Colorado) and 2014 (Alaska, Oregon) represent a causal driver of increased usage, or did usage rates simply follow the national trajectory?
 
 ## Dataset Overview
 
@@ -39,7 +48,7 @@ cat("States:", length(unique(drugs$State)), "\n")
 
 ## Marijuana Trends by Age
 
-```{r fig.width=10, fig.height=6}
+```{r fig.width=12, fig.height=6}
 drugs %>%
   select(Year, 
          `Rates.Marijuana.Used Past Month.12-17`,
@@ -52,9 +61,13 @@ drugs %>%
   labs(title = "Marijuana Use Over Time", y = "Rate per 1000")
 ```
 
+::: {style="font-size: 60%;"}
+The 18–25 age group shows an increasing rate per 1,000 over time and remains significantly higher than the other two age groups.
+:::
+
 ## Alcohol Disorder Trends
 
-```{r fig.width=10, fig.height=6}
+```{r fig.width=12, fig.height=6}
 drugs %>%
   select(Year, 
          `Rates.Alcohol.Use Disorder Past Year.12-17`,
@@ -67,9 +80,13 @@ drugs %>%
   labs(title = "Alcohol Use Disorder Over Time", y = "Rate per 1000")
 ```
 
+::: {style="font-size: 60%;"}
+The 18–25 age group still shows the highest alcohol disorder rate per 1,000, but rates for all three age groups gradually decrease over time.
+:::
+
 ## Tobacco Trends
 
-```{r fig.width=10, fig.height=6}
+```{r fig.width=12, fig.height=6}
 drugs %>%
   select(Year, 
          `Rates.Tobacco.Cigarette Past Month.12-17`,
@@ -81,6 +98,10 @@ drugs %>%
   geom_smooth(se = TRUE) +
   labs(title = "Tobacco Use Over Time", y = "Rate per 1000")
 ```
+
+::: {style="font-size: 60%;"}
+The 18–25 age group shows the highest tobacco usage rate per 1,000. Rates for all three age groups gradually decline over time, but at different speeds, with the 18–25 group eventually converging with the 26+ group.
+:::
 
 ## Top States: Marijuana Use
 
@@ -154,13 +175,3 @@ drugs %>%
   labs(title = "All Substances (18-25 Age Group)") +
   theme(legend.position = "none")
 ```
-
-## Initial Analysis (1)
-
-From Marijuana Trends by age, Alcohol Disorder Trends, Tobacco Trends (The complete pool of all states)
-
--   Age group from 18-25 display increasing rate per 1000 over time, and significantly higher compare to the other two age groups.
-
--   Age group from 18-25 still present higher disorder rate per 1000, but the rate for all 3 age groups are gradually decreasing over time.
-
--   Age group from 18-25 display higher higher tobacco usage rate per 1000. The rate for all 3 age groups are gradually decreasing but at different speed, where age group 18-25 meets the usage rate with age group from 26+
