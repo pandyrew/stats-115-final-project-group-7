@@ -16,10 +16,26 @@ drugs <- read_csv("data/drugs.csv")
 
 ## Dataset Overview
 
+::: {style="font-size: 0.7em;"}
 ```{r}
-dim(drugs)
-head(drugs, 3)
+cat("Dimensions:", nrow(drugs), "observations ×", ncol(drugs), "variables\n")
+cat("Years:", min(drugs$Year), "-", max(drugs$Year), "\n")
+cat("States:", length(unique(drugs$State)), "\n")
 ```
+
+**Key Variables:**
+
+-   **Demographics**: State, Year, Population by age group (12-17, 18-25, 26+)
+-   **Substances**: Alcohol, Marijuana, Tobacco, Cocaine
+-   **Metrics**: Totals (counts) and Rates (per 1000 population)
+-   **Time frames**: Past month, past year usage
+
+**Age Groups:**
+
+-   12-17 (adolescents)
+-   18-25 (young adults)
+-   26+ (adults)
+:::
 
 ## Marijuana Trends by Age
 
