@@ -384,7 +384,6 @@ cat("\nConclusion:", ifelse(t_test$p.value < 0.05,
 
 ## Bayesian Approach: Question 2
 
-::: {style="font-size: 0.7em;"}
 **Why Bayesian?**
 
 -   Quantify **uncertainty** in the effect of legalization
@@ -392,7 +391,7 @@ cat("\nConclusion:", ifelse(t_test$p.value < 0.05,
 -   Make probabilistic statements: "What's the probability that early adopters increased more?"
 -   Incorporate **prior knowledge** about drug use trends
 
-**Proposed Model:**
+## Proposed Model
 
 ```         
 Rate_ijt ~ Normal(μ_ijt, σ²)
@@ -407,6 +406,7 @@ Priors:
 σ ~ Half-Cauchy(0, 25)
 ```
 
+::: {style="font-size: 0.7em;"}
 **Key Parameter: β₄** (Interaction Term) - If β₄ \> 0: Early adopters had **additional** increase beyond national trend - Posterior P(β₄ \> 0) tells us probability of causal effect
 
 **Posterior Predictive Checks:** - Simulate data from posterior → compare to observed data - Check if model captures trends, variance, state-level differences
@@ -476,7 +476,7 @@ cat("Interpretation: There is a", round(mean(posterior_diff > 0) * 100, 1), "% p
 cat("legalization caused additional increases in early adopter states.\n")
 ```
 
-```{r fig.width=10, fig.height=5}
+```{r fig.width=8, fig.height=3.5}
 hist(posterior_diff, breaks = 50, col = "skyblue", border = "white",
      main = "Posterior Distribution: Extra Effect of Legalization",
      xlab = "Additional Change in Early Adopters (per 1000)",

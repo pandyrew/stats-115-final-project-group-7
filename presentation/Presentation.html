@@ -349,7 +349,6 @@ Conclusion: No significant difference detected</code></pre>
 </section>
 <section id="bayesian-approach-question-2" class="slide level2">
 <h2>Bayesian Approach: Question 2</h2>
-<div style="font-size: 0.7em;">
 <p><strong>Why Bayesian?</strong></p>
 <ul>
 <li>Quantify <strong>uncertainty</strong> in the effect of legalization</li>
@@ -357,7 +356,9 @@ Conclusion: No significant difference detected</code></pre>
 <li>Make probabilistic statements: “What’s the probability that early adopters increased more?”</li>
 <li>Incorporate <strong>prior knowledge</strong> about drug use trends</li>
 </ul>
-<p><strong>Proposed Model:</strong></p>
+</section>
+<section id="proposed-model" class="slide level2">
+<h2>Proposed Model</h2>
 <pre><code>Rate_ijt ~ Normal(μ_ijt, σ²)
 μ_ijt = β₀ + β₁·Year_t + β₂·EarlyAdopter_i + β₃·PostLegalization_t + β₄·(EarlyAdopter_i × PostLegalization_t)
 
@@ -368,6 +369,7 @@ Priors:
 β₃ ~ Normal(0, 20²)             # post-legalization effect
 β₄ ~ Normal(0, 15²)             # INTERACTION: extra effect for early adopters
 σ ~ Half-Cauchy(0, 25)</code></pre>
+<div style="font-size: 0.7em;">
 <p><strong>Key Parameter: β₄</strong> (Interaction Term) - If β₄ &gt; 0: Early adopters had <strong>additional</strong> increase beyond national trend - Posterior P(β₄ &gt; 0) tells us probability of causal effect</p>
 <p><strong>Posterior Predictive Checks:</strong> - Simulate data from posterior → compare to observed data - Check if model captures trends, variance, state-level differences</p>
 </div>
@@ -423,11 +425,28 @@ Interpretation:
 <div class="cell-output-display">
 <div>
 <figure>
-<p><img data-src="Presentation_files/figure-revealjs/unnamed-chunk-16-1.png" width="960"></p>
+<p><img data-src="Presentation_files/figure-revealjs/unnamed-chunk-16-1.png" width="768"></p>
 </figure>
 </div>
 </div>
 </div>
+</div>
+</section>
+<section id="comparing-the-approaches" class="slide level2">
+<h2>Comparing the Approaches</h2>
+<div style="font-size: 0.75em;">
+<p><strong>Descriptive Analysis (Earlier):</strong> - Early adopters: +73.9 per 1000 (33.5% increase) - Other states: +36.8 per 1000 (21.1% increase)<br>
+- <strong>Difference: ~37 per 1000</strong></p>
+<p><strong>Bayesian Analysis (Just now):</strong> - <strong>Posterior mean: 37.05</strong> per 1000 extra effect - 95% Credible Interval: [19.23, 54.5] - P(Effect &gt; 0) = 100%</p>
+<p><strong>Why are they similar?</strong></p>
+<p>They’re measuring the <strong>same thing</strong> (difference-in-differences), but the Bayesian approach adds:</p>
+<ol type="1">
+<li><strong>Uncertainty quantification</strong>: Not just “37”, but “37 ± uncertainty”</li>
+<li><strong>Probabilistic statements</strong>: “100% probability of positive effect” vs “p &lt; 0.05”</li>
+<li><strong>Credible intervals</strong>: “95% chance true value is in [19, 55]” vs “we reject null hypothesis”</li>
+<li><strong>Full distribution</strong>: See the entire range of plausible values (the histogram)</li>
+</ol>
+<p><strong>Key insight:</strong> The Bayesian analysis <strong>confirms</strong> our descriptive finding but gives us <strong>stronger evidence</strong> with quantified uncertainty. The posterior mean (37.05) matches our difference-in-differences (37) because both are based on the same data, but Bayesian tells us how confident we should be.</p>
 </div>
 
 </section>
