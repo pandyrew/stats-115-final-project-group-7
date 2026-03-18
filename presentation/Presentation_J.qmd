@@ -1,5 +1,5 @@
 ---
-title: "Best Presentation"
+title: "Legalization<br>& Cannabis Use"
 subtitle: "Stats 115 Final Project"
 author: "Charles Gao<br>Andrew Hwang<br>Jason Huffstutter<br>Andrew Hahm"
 format: revealjs
@@ -23,14 +23,27 @@ library(tidybayes)
 drugs <- read_csv("data/drugs.csv")
 ```
 
-## Background & Motivation
-
-TO DO
-
 ## Our Research Question
 
--   How do years of economic hardship (2008) affect alcohol rates across all age groups?
 -   Was early state-level marijuana legalization in 2012 (Washington, Colorado) and 2014 (Alaska, Oregon) associated with higher marijuana-use rates among ages 18–25, beyond the broader national trend?
+
+## Background & Motivation
+
+::: {style="font-size: 0.75em;"}
+Why should we care about this topic?
+
+-   Marijuana legalization is a policy issue in the United States that goes beyond red/blue politics, as it reflects family dynamics, community experiences, and personal values.
+
+-   A key concern is whether legalization is associated with significantly higher marijuana use, especially among young adults.
+
+Who will these results help in the future?
+
+-   Policymakers can use these results to better understand how marijuana regulation can affect younger demographics.
+
+-   Public health groups and schools can use this information to better educate and improve prevention efforts.
+
+-   Individuals can gain knowledge to create more informed opinions.
+:::
 
 ## Dataset Overview
 
@@ -38,14 +51,14 @@ TO DO
 ```{r}
 cat("Dimensions:", nrow(drugs), "observations ×", ncol(drugs), "variables\n")
 cat("Years:", min(drugs$Year), "-", max(drugs$Year), "\n")
-cat("States:", length(unique(drugs$State)), "(includes D.C.)\n")
+cat("States:", length(unique(drugs$State)), "(includes Washington D.C.)\n")
 ```
 
 **Key Variables:**
 
--   **Demographics**: State, Year, Population by age group (12-17, 18-25, 26+)
--   **Substances**: Alcohol, Marijuana, Tobacco, Cocaine
--   **Metrics**: Totals (counts) and Rates (per 1000 population)
+-   **Demographics**: State, Year, Population by age group
+-   **Substances**: Marijuana, Tobacco, Alcohol, Cocaine
+-   **Metrics**: Totals (counts) and Rates (per 1000 people)
 -   **Time frames**: Past month, past year usage
 
 **Age Groups:**
@@ -71,26 +84,7 @@ drugs %>%
 ```
 
 ::: {style="font-size: 60%;"}
-The 18–25 age group shows an increasing rate per 1,000 over time and remains significantly higher than the other two age groups.
-:::
-
-## Alcohol Disorder Trends
-
-```{r fig.width=12, fig.height=6}
-drugs %>%
-  select(Year, 
-         `Rates.Alcohol.Use Disorder Past Year.12-17`,
-         `Rates.Alcohol.Use Disorder Past Year.18-25`,
-         `Rates.Alcohol.Use Disorder Past Year.26+`) %>%
-  pivot_longer(cols = -Year, names_to = "Age_Group", values_to = "Rate") %>%
-  mutate(Age_Group = str_extract(Age_Group, "12-17|18-25|26\\+")) %>%
-  ggplot(aes(x = Year, y = Rate, color = Age_Group)) +
-  geom_smooth(se = TRUE) +
-  labs(title = "Alcohol Use Disorder Over Time", y = "Rate per 1000")
-```
-
-::: {style="font-size: 60%;"}
-The 18–25 age group still shows the highest alcohol disorder rate per 1,000, but rates for all three age groups gradually decrease over time.
+The 18–25 age group shows an increasing rate over time and remains significantly higher than the other two age groups.
 :::
 
 ## Tobacco Trends
@@ -109,12 +103,18 @@ drugs %>%
 ```
 
 ::: {style="font-size: 60%;"}
-The 18–25 age group shows the highest tobacco usage rate per 1,000. Rates for all three age groups gradually decline over time, but at different speeds, with the 18–25 group eventually converging with the 26+ group.
+The 18–25 age group shows the highest tobacco usage rate. Rates for all three age groups gradually decline over time, but at different speeds, with the 18–25 group eventually converging with the 26+ group.
 :::
 
-## Top States: Marijuana Use
+## States Ranked by Marijuana Use (2018)
 
 ```{r fig.width=10, fig.height=7}
+# A major weakness of this is that it's just the year 2018.
+# I will think of ways we can restructure this plot so it doesn't suffer from this
+
+# Alternatively, we could focus on how 3/5 stats in the top 4 have it legalized,
+# then this weakness could probably be overlooked
+
 drugs %>%
   filter(Year == max(Year)) %>%
   arrange(desc(`Rates.Marijuana.Used Past Month.18-25`)) %>%
@@ -124,16 +124,6 @@ drugs %>%
   geom_col(fill = "steelblue") +
   coord_flip() +
   labs(title = "Top 15 States: Marijuana Use (18-25)", x = "", y = "Rate per 1000")
-```
-
-## Distribution: Marijuana Use
-
-```{r fig.width=10, fig.height=6}
-drugs %>%
-  ggplot(aes(x = `Rates.Marijuana.Used Past Month.18-25`)) +
-  geom_histogram(bins = 30, fill = "seagreen", alpha = 0.7) +
-  geom_density(aes(y = after_stat(count)), size = 1.2, color = "darkgreen") +
-  labs(title = "Distribution of Marijuana Use Rates (18-25)", x = "Rate per 1000")
 ```
 
 ## Correlation Matrix
@@ -184,12 +174,6 @@ drugs %>%
   labs(title = "All Substances (18-25 Age Group)") +
   theme(legend.position = "none")
 ```
-
-## Question 1: Economic Hardship
-
-**How do years of economic hardship (2008) affect alcohol rates across all age groups?**
-
-Initially, we thought that many people would cope with hardship by abusing alcohol (as seen in popular culture), but we also figured that many households might also employ a tighter monetary policy to save some money.
 
 ## Question 2: Marijuana Legalization
 
@@ -645,3 +629,11 @@ mean(post[, "Post"] > 0)
 
 Across all three approaches, early-adopter states showed larger post-legalization increases in marijuana-use rates among ages 18–25. The Bayesian model provides the clearest evidence of a positive post-legalization **association**, even after accounting for persistent state differences and flexible year-to-year national shifts. At the same time, because early-adopter states already differed before legalization, the result should be interpreted as strongly suggestive rather than definitively causal.
 :::
+
+## Where could we go from here?
+
+-   We would collect more detailed data, such as county-level or individual-level data, instead of only state-level averages.
+
+-   We would use stronger methods to study causality and better separate the effect of legalization from pre-existing state differences.
+
+-   We would also study other factors like dispensary access, advertising, local policies, and differences across different demographics instead of just age

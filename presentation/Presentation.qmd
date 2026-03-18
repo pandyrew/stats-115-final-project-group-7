@@ -38,7 +38,7 @@ TO DO
 ```{r}
 cat("Dimensions:", nrow(drugs), "observations ×", ncol(drugs), "variables\n")
 cat("Years:", min(drugs$Year), "-", max(drugs$Year), "\n")
-cat("States:", length(unique(drugs$State)), "(includes D.C.)\n")
+cat("States:", length(unique(drugs$State)), "(includes Washington D.C.)\n")
 ```
 
 **Key Variables:**
