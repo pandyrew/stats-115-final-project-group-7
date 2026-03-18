@@ -227,8 +227,8 @@ Charles Gao<br>Andrew Hwang<br>Jason Huffstutter<br>Andrew Hahm
 </section>
 <section id="question-2-marijuana-legalization" class="slide level2">
 <h2>Question 2: Marijuana Legalization</h2>
-<p><strong>Did early state-level marijuana legalization in 2012 (Washington, Colorado) and 2014 (Alaska, Oregon) represent a causal driver of increased usage, or did usage rates simply follow the national trajectory?</strong></p>
-<p>Our initial findings saw that the years after marijuana legalization did see an uptake in usage, but we wanted to see if legalization sped up adoption, or if it was going to happen regardless.</p>
+<p><strong>Did early state-level marijuana legalization in 2012 (Washington, Colorado) and 2014 (Alaska, Oregon) lead to higher marijuana-use rates among ages 18–25, beyond the broader national trend?</strong></p>
+<p>Our exploratory analysis suggested that marijuana use among <strong>18–25-year-olds</strong> rose after legalization. We then asked whether legalization acted as an additional driver of growth in early-adopter states, or whether usage was simply increasing along with the national trajectory.</p>
 </section>
 <section id="legalization-timeline" class="slide level2">
 <h2>Legalization Timeline</h2>
@@ -320,10 +320,20 @@ Charles Gao<br>Andrew Hwang<br>Jason Huffstutter<br>Andrew Hahm
 <h2>Statistical Testing: Did Legalization Matter?</h2>
 <div style="font-size: 0.75em;">
 <p><strong>Hypothesis Test Options:</strong></p>
-<p><strong>1. Difference-in-Differences (DiD) Analysis</strong> - H₀: Change in early adopters = Change in other states - H₁: Change in early adopters &gt; Change in other states - Tests if the <em>change</em> differs between groups</p>
-<p><strong>2. Two-Sample t-test on Growth Rates</strong> - Compare % increases: 33.5% vs 21.1% - Tests if growth rates significantly differ</p>
-<p><strong>3. Interaction Effect (Regression)</strong> - Model: Rate ~ Year + Group + Year×Group - Tests if the slope (time trend) differs by group</p>
+<p><strong>1. Two-Sample t-test on Growth Rates</strong> - Compare % increases: 33.5% vs 21.1% - Tests if growth rates significantly differ</p>
+<p><strong>2. Interaction Effect (Regression)</strong> - Model: Rate ~ Year + Group + Year×Group - Tests if the slope (time trend) differs by group</p>
+</div>
+</section>
+<section id="two-sample-t-test-on-growth-rates" class="slide level2">
+<h2>Two-Sample t-test on Growth Rates</h2>
+<div style="font-size: 0.75em;">
 <p>Let’s run a simple t-test:</p>
+<p><span class="math display">\[
+H_0:\ \mu_{\text{Early growth}} = \mu_{\text{Other growth}}
+\]</span></p>
+<p><span class="math display">\[
+H_1:\ \mu_{\text{Early growth}} &gt; \mu_{\text{Other growth}}
+\]</span></p>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>Two-Sample t-test: Early Adopters vs Other States</code></pre>
@@ -359,21 +369,63 @@ Conclusion: No significant difference detected</code></pre>
 </section>
 <section id="proposed-model" class="slide level2">
 <h2>Proposed Model</h2>
-<pre><code>Rate_ijt ~ Normal(μ_ijt, σ²)
-μ_ijt = β₀ + β₁·Year_t + β₂·EarlyAdopter_i + β₃·PostLegalization_t + β₄·(EarlyAdopter_i × PostLegalization_t)
-
-Priors:
-β₀ ~ Normal(180, 50²)           # baseline rate
-β₁ ~ Normal(0, 10²)             # time trend
-β₂ ~ Normal(0, 30²)             # early adopter baseline difference
-β₃ ~ Normal(0, 20²)             # post-legalization effect
-β₄ ~ Normal(0, 15²)             # INTERACTION: extra effect for early adopters
-σ ~ Half-Cauchy(0, 25)</code></pre>
 <div style="font-size: 0.7em;">
-<p><strong>Key Parameter: β₄</strong> (Interaction Term) - If β₄ &gt; 0: Early adopters had <strong>additional</strong> increase beyond national trend - Posterior P(β₄ &gt; 0) tells us probability of causal effect</p>
-<p><strong>Posterior Predictive Checks:</strong> - Simulate data from posterior → compare to observed data - Check if model captures trends, variance, state-level differences</p>
+<p><span class="math display">\[
+Rate_{it} \sim \text{Normal}(\mu_{it}, \sigma)
+\]</span></p>
+<p><span class="math display">\[
+\mu_{it} = \alpha_i + \beta_1(Year_t - 2012) + \beta_2 Post_{it}
+\]</span></p>
+</div>
+<p><strong>Priors:</strong></p>
+<div style="font-size: 0.6em;">
+<p><span class="math display">\[
+\alpha_i \sim \text{Normal}(\alpha_0, \tau_\alpha)
+\]</span></p>
+<p><span class="math display">\[
+\alpha_0 \sim \text{Normal}(180, 50)
+\]</span></p>
+<p><span class="math display">\[
+\tau_\alpha \sim \text{Half-Normal}(30)
+\]</span></p>
+<p><span class="math display">\[
+\beta_1 \sim \text{Normal}(0, 10)
+\]</span></p>
+<p><span class="math display">\[
+\beta_2 \sim \text{Normal}(0, 20)
+\]</span></p>
+<p><span class="math display">\[
+\sigma \sim \text{Half-Normal}(25)
+\]</span></p>
 </div>
 </section>
+<section id="model-interpretation" class="slide level2">
+<h2>Model Interpretation</h2>
+<div style="font-size: 0.6em;">
+<p><strong>Key Parameter:</strong> <span class="math inline">\(β_2\)</span> (Post-Legalization Effect)</p>
+<p>If <span class="math inline">\(β_2 &gt; 0\)</span>, marijuana-use rates increased after legalization in treated states beyond the broader national trend. Posterior <span class="math inline">\(P(β_2 &gt; 0 \mid data)\)</span> gives the probability that this effect is positive under the model.</p>
+<p><strong>Model Notes:</strong></p>
+<ul>
+<li><p><span class="math inline">\(Post_{it}\)</span>: state-specific post-legalization indicator, since legalization occurred in different years across states</p></li>
+<li><p><span class="math inline">\(α_i\)</span>: state-specific baseline marijuana-use level</p></li>
+<li><p>Time is centered at 2012 for easier interpretation of the intercept and trend</p></li>
+</ul>
+<p><strong>Posterior Predictive Checks:</strong></p>
+<ul>
+<li><p>Simulate replicated state-year rates from the posterior</p></li>
+<li><p>Compare simulated values to observed trends over time</p></li>
+<li><p>Check whether the model captures national trends, state-level variation, and post-legalization shifts</p></li>
+</ul>
+</div>
+</section>
+<section id="mcmc-trace" class="slide level2">
+<h2>MCMC Trace</h2>
+
+<img data-src="Presentation_files/figure-revealjs/unnamed-chunk-17-1.png" width="960" class="r-stretch"></section>
+<section id="mcmc-density-overlay" class="slide level2">
+<h2>MCMC Density Overlay</h2>
+
+<img data-src="Presentation_files/figure-revealjs/unnamed-chunk-18-1.png" width="960" class="r-stretch"></section>
 <section id="bayesian-analysis-results" class="slide level2">
 <h2>Bayesian Analysis Results</h2>
 <div style="font-size: 0.75em;">
@@ -425,7 +477,7 @@ Interpretation:
 <div class="cell-output-display">
 <div>
 <figure>
-<p><img data-src="Presentation_files/figure-revealjs/unnamed-chunk-16-1.png" width="768"></p>
+<p><img data-src="Presentation_files/figure-revealjs/unnamed-chunk-20-1.png" width="768"></p>
 </figure>
 </div>
 </div>
