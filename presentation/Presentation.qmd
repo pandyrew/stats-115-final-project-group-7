@@ -522,7 +522,9 @@ mcmc_trace(
   size = 0.2
 )
 ```
-
+::: {style="font-size: 0.6em;"}
+The traceplots show good mixing across chains
+:::
 ## MCMC Density Overlay
 
 ```{r}
@@ -531,100 +533,64 @@ mcmc_dens_overlay(
   pars = c("(Intercept)", "Year_c", "Post", "sigma")
 )
 ```
-
-## Bayesian Analysis Results
-
-::: {style="font-size: 0.75em;"}
-**What we'd report (with actual Bayesian analysis):**
-
-```         
-Posterior Summary for β₄ (Interaction Effect):
-  Mean: 5.2 per 1000 per year
-  95% Credible Interval: [2.1, 8.7]
-  P(β₄ > 0 | data) = 0.997
-  
-Interpretation: 
-- 99.7% probability that legalization caused ADDITIONAL increase in early adopter states
-- Expected extra increase: ~5.2 per 1000 per year beyond national trend
-- We are 95% confident the effect is between 2.1 and 8.7
-```
-
-**Posterior Predictive Check:** - Generate 1000 datasets from posterior - Compare simulated trends to actual data - Check: Do simulated rates match observed variance? State patterns? Time trends?
-
-**Advantages over Frequentist:** - Direct probability statements about effects - Uncertainty quantification for predictions - Can incorporate domain knowledge via priors - Natural handling of hierarchical structure (states within groups)
+::: {style="font-size: 0.6em;"}
+Density overlays are highly consistent across chains. This suggests the posterior simulation converged well and the MCMC samples are reliable for inference.
 :::
 
-## Implementing the Bayesian Model
-
-::: {style="font-size: 0.65em;"}
-**Simple Bayesian Analysis (Using Conjugate Priors):**
+## Posterior Predictive Check
 
 ```{r}
-early_states <- c("Washington", "Colorado", "Alaska", "Oregon")
-
-pre_data <- drugs %>%
-  filter(Year < 2012) %>%
-  mutate(Group = ifelse(State %in% early_states, "Early", "Other"))
-
-post_data <- drugs %>%
-  filter(Year >= 2014) %>%
-  mutate(Group = ifelse(State %in% early_states, "Early", "Other"))
-
-early_pre <- pre_data %>% filter(Group == "Early") %>% pull(`Rates.Marijuana.Used Past Month.18-25`)
-early_post <- post_data %>% filter(Group == "Early") %>% pull(`Rates.Marijuana.Used Past Month.18-25`)
-other_pre <- pre_data %>% filter(Group == "Other") %>% pull(`Rates.Marijuana.Used Past Month.18-25`)
-other_post <- post_data %>% filter(Group == "Other") %>% pull(`Rates.Marijuana.Used Past Month.18-25`)
-
-change_early <- mean(early_post, na.rm = TRUE) - mean(early_pre, na.rm = TRUE)
-change_other <- mean(other_post, na.rm = TRUE) - mean(other_pre, na.rm = TRUE)
-diff_in_diff <- change_early - change_other
-
-set.seed(123)
-n_sims <- 10000
-
-sim_change_early <- rnorm(n_sims, mean = change_early, sd = sd(early_post - mean(early_pre), na.rm = TRUE) / sqrt(length(early_post)))
-sim_change_other <- rnorm(n_sims, mean = change_other, sd = sd(other_post - mean(other_pre), na.rm = TRUE) / sqrt(length(other_post)))
-posterior_diff <- sim_change_early - sim_change_other
-
-cat("Bayesian Difference-in-Differences Analysis\n")
-cat("==========================================\n\n")
-cat("Posterior Mean (Extra effect for early adopters):", round(mean(posterior_diff), 2), "\n")
-cat("95% Credible Interval:", round(quantile(posterior_diff, 0.025), 2), "to", round(quantile(posterior_diff, 0.975), 2), "\n")
-cat("Posterior P(Effect > 0 | data):", round(mean(posterior_diff > 0), 4), "\n")
-cat("Posterior P(Effect > 20 | data):", round(mean(posterior_diff > 20), 4), "\n\n")
-cat("Interpretation: There is a", round(mean(posterior_diff > 0) * 100, 1), "% probability that\n")
-cat("legalization caused additional increases in early adopter states.\n")
+pp_check(legalization_model)
 ```
+::: {style="font-size: 0.6em;"}
+Our simulated data from the posterior match the observed distribution and trend quite well. The model captures the main structure of the marijuana-use data reasonably well.
+:::
+## Bayesian Analysis Results
 
-```{r fig.width=8, fig.height=3.5}
-hist(posterior_diff, breaks = 50, col = "skyblue", border = "white",
-     main = "Posterior Distribution: Extra Effect of Legalization",
-     xlab = "Additional Change in Early Adopters (per 1000)",
-     freq = FALSE)
-abline(v = mean(posterior_diff), col = "red", lwd = 2, lty = 2)
-abline(v = quantile(posterior_diff, c(0.025, 0.975)), col = "darkred", lwd = 2, lty = 3)
-abline(v = 0, col = "black", lwd = 2)
-legend("topright", c("Posterior Mean", "95% Credible Interval", "No Effect"),
-       col = c("red", "darkred", "black"), lty = c(2, 3, 1), lwd = 2)
+**Credible Intervals**
+```{r}
+ci95 <- posterior_interval(legalization_model, prob = 0.95)
+
+ci95[c("(Intercept)", "Year_c", "Post", "sigma", "Sigma[State:(Intercept),(Intercept)]"), ]
 ```
+**Posterior probability**
+```{r}
+post <- as.matrix(legalization_model)
+mean(post[, "Post"] > 0)
+```
+## Bayesian Analysis Results
+::: {style="font-size: 0.7em;"}
+**Posterior Summary:**
+
+-   $95\%$ credible interval for $β_1$ ($Year_c$): $[3.21,\ 3.75]$
+
+-   $95\%$ credible interval for $β_2$ ($Post$): $[30.12,\ 49.08]$
+
+-   $P(β_2 > 0 \mid data) = 1.00$
+
+**Interpretation:**
+The positive interval for $β_1$ suggests that marijuana-use rates were already increasing over time nationwide, by about 3.2 to 3.7 rate points per year on average. Even after accounting for that broader upward trend and baseline differences across states, the model estimates that post-legalization years in treated states were associated with an additional increase of about 30 to 49 rate points. This effect is credibly positive, with posterior probability essentially equal to 1.
 :::
 
-## Comparing the Approaches
+## Question 2: Comparing the Approaches
+::: {style="font-size: 0.6em;"}
+**Descriptive Analysis:**
 
-::: {style="font-size: 0.75em;"}
-**Descriptive Analysis (Earlier):** - Early adopters: +73.9 per 1000 (33.5% increase) - Other states: +36.8 per 1000 (21.1% increase)\
-- **Difference: \~37 per 1000**
+-   Early-adopter states showed larger increases in marijuana-use rates than other states
 
-**Bayesian Analysis (Just now):** - **Posterior mean: 37.05** per 1000 extra effect - 95% Credible Interval: \[19.23, 54.5\] - P(Effect \> 0) = 100%
+**Frequentist Test:**
 
-**Why are they similar?**
+-   The two-sample t-test found higher average growth in early-adopter states
+-   However, the difference was not statistically significant
 
-They're measuring the **same thing** (difference-in-differences), but the Bayesian approach adds:
+**Bayesian Model:**
 
-1.  **Uncertainty quantification**: Not just "37", but "37 ± uncertainty"
-2.  **Probabilistic statements**: "100% probability of positive effect" vs "p \< 0.05"
-3.  **Credible intervals**: "95% chance true value is in \[19, 55\]" vs "we reject null hypothesis"
-4.  **Full distribution**: See the entire range of plausible values (the histogram)
+-   The model estimated a positive national time trend: $95\%$ CI for $β_1$: $[3.21,\ 3.75]$
 
-**Key insight:** The Bayesian analysis **confirms** our descriptive finding but gives us **stronger evidence** with quantified uncertainty. The posterior mean (37.05) matches our difference-in-differences (37) because both are based on the same data, but Bayesian tells us how confident we should be.
+-   The post-legalization effect remained strongly positive: $95\%$ CI for $β_2$: $[30.12,\ 49.08]$
+
+-   $P(β_2 > 0 \mid data) = 1.00$
+
+**Key Insight:**
+The descriptive and frequentist results suggest an increase after legalization, but the Bayesian model gives the clearest conclusion: even after accounting for a broader upward national trend, post-legalization years in treated states were associated with substantially higher marijuana-use rates.
 :::

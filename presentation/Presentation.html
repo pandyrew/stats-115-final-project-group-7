@@ -421,84 +421,75 @@ Rate_{it} \sim \text{Normal}(\mu_{it}, \sigma)
 <section id="mcmc-trace" class="slide level2">
 <h2>MCMC Trace</h2>
 
-<img data-src="Presentation_files/figure-revealjs/unnamed-chunk-17-1.png" width="960" class="r-stretch"></section>
+<img data-src="Presentation_files/figure-revealjs/unnamed-chunk-17-1.png" width="960" class="r-stretch"><div style="font-size: 0.6em;">
+<p>The traceplots show good mixing across chains</p>
+</div>
+</section>
 <section id="mcmc-density-overlay" class="slide level2">
 <h2>MCMC Density Overlay</h2>
 
-<img data-src="Presentation_files/figure-revealjs/unnamed-chunk-18-1.png" width="960" class="r-stretch"></section>
+<img data-src="Presentation_files/figure-revealjs/unnamed-chunk-18-1.png" width="960" class="r-stretch"><div style="font-size: 0.6em;">
+<p>Density overlays are highly consistent across chains. This suggests the posterior simulation converged well and the MCMC samples are reliable for inference.</p>
+</div>
+</section>
+<section id="posterior-predictive-check" class="slide level2">
+<h2>Posterior Predictive Check</h2>
+
+<img data-src="Presentation_files/figure-revealjs/unnamed-chunk-19-1.png" width="960" class="r-stretch"><div style="font-size: 0.6em;">
+<p>Our simulated data from the posterior match the observed distribution and trend quite well. The model captures the main structure of the marijuana-use data reasonably well.</p>
+</div>
+</section>
 <section id="bayesian-analysis-results" class="slide level2">
 <h2>Bayesian Analysis Results</h2>
-<div style="font-size: 0.75em;">
-<p><strong>What we’d report (with actual Bayesian analysis):</strong></p>
-<pre><code>Posterior Summary for β₄ (Interaction Effect):
-  Mean: 5.2 per 1000 per year
-  95% Credible Interval: [2.1, 8.7]
-  P(β₄ &gt; 0 | data) = 0.997
-  
-Interpretation: 
-- 99.7% probability that legalization caused ADDITIONAL increase in early adopter states
-- Expected extra increase: ~5.2 per 1000 per year beyond national trend
-- We are 95% confident the effect is between 2.1 and 8.7</code></pre>
-<p><strong>Posterior Predictive Check:</strong> - Generate 1000 datasets from posterior - Compare simulated trends to actual data - Check: Do simulated rates match observed variance? State patterns? Time trends?</p>
-<p><strong>Advantages over Frequentist:</strong> - Direct probability statements about effects - Uncertainty quantification for predictions - Can incorporate domain knowledge via priors - Natural handling of hierarchical structure (states within groups)</p>
-</div>
-</section>
-<section id="implementing-the-bayesian-model" class="slide level2">
-<h2>Implementing the Bayesian Model</h2>
-<div style="font-size: 0.65em;">
-<p><strong>Simple Bayesian Analysis (Using Conjugate Priors):</strong></p>
+<p><strong>Credible Intervals</strong></p>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
-<pre><code>Bayesian Difference-in-Differences Analysis</code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>==========================================</code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Posterior Mean (Extra effect for early adopters): 37.05 </code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>95% Credible Interval: 19.23 to 54.5 </code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Posterior P(Effect &gt; 0 | data): 1 </code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Posterior P(Effect &gt; 20 | data): 0.9697 </code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Interpretation: There is a 100 % probability that</code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>legalization caused additional increases in early adopter states.</code></pre>
+<pre><code>                                            2.5%       97.5%
+(Intercept)                           184.873977  209.439145
+Year_c                                  3.213697    3.746012
+Post                                   30.123630   49.080602
+sigma                                  18.071786   19.923678
+Sigma[State:(Intercept),(Intercept)] 1413.171864 3094.859547</code></pre>
 </div>
 </div>
+<p><strong>Posterior probability</strong></p>
 <div class="cell">
-<div class="cell-output-display">
-<div>
-<figure>
-<p><img data-src="Presentation_files/figure-revealjs/unnamed-chunk-20-1.png" width="768"></p>
-</figure>
-</div>
-</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1</code></pre>
 </div>
 </div>
 </section>
-<section id="comparing-the-approaches" class="slide level2">
-<h2>Comparing the Approaches</h2>
-<div style="font-size: 0.75em;">
-<p><strong>Descriptive Analysis (Earlier):</strong> - Early adopters: +73.9 per 1000 (33.5% increase) - Other states: +36.8 per 1000 (21.1% increase)<br>
-- <strong>Difference: ~37 per 1000</strong></p>
-<p><strong>Bayesian Analysis (Just now):</strong> - <strong>Posterior mean: 37.05</strong> per 1000 extra effect - 95% Credible Interval: [19.23, 54.5] - P(Effect &gt; 0) = 100%</p>
-<p><strong>Why are they similar?</strong></p>
-<p>They’re measuring the <strong>same thing</strong> (difference-in-differences), but the Bayesian approach adds:</p>
-<ol type="1">
-<li><strong>Uncertainty quantification</strong>: Not just “37”, but “37 ± uncertainty”</li>
-<li><strong>Probabilistic statements</strong>: “100% probability of positive effect” vs “p &lt; 0.05”</li>
-<li><strong>Credible intervals</strong>: “95% chance true value is in [19, 55]” vs “we reject null hypothesis”</li>
-<li><strong>Full distribution</strong>: See the entire range of plausible values (the histogram)</li>
-</ol>
-<p><strong>Key insight:</strong> The Bayesian analysis <strong>confirms</strong> our descriptive finding but gives us <strong>stronger evidence</strong> with quantified uncertainty. The posterior mean (37.05) matches our difference-in-differences (37) because both are based on the same data, but Bayesian tells us how confident we should be.</p>
+<section id="bayesian-analysis-results-1" class="slide level2">
+<h2>Bayesian Analysis Results</h2>
+<div style="font-size: 0.7em;">
+<p><strong>Posterior Summary:</strong></p>
+<ul>
+<li><p><span class="math inline">\(95\%\)</span> credible interval for <span class="math inline">\(β_1\)</span> (<span class="math inline">\(Year_c\)</span>): <span class="math inline">\([3.21,\ 3.75]\)</span></p></li>
+<li><p><span class="math inline">\(95\%\)</span> credible interval for <span class="math inline">\(β_2\)</span> (<span class="math inline">\(Post\)</span>): <span class="math inline">\([30.12,\ 49.08]\)</span></p></li>
+<li><p><span class="math inline">\(P(β_2 &gt; 0 \mid data) = 1.00\)</span></p></li>
+</ul>
+<p><strong>Interpretation:</strong> The positive interval for <span class="math inline">\(β_1\)</span> suggests that marijuana-use rates were already increasing over time nationwide, by about 3.2 to 3.7 rate points per year on average. Even after accounting for that broader upward trend and baseline differences across states, the model estimates that post-legalization years in treated states were associated with an additional increase of about 30 to 49 rate points. This effect is credibly positive, with posterior probability essentially equal to 1.</p>
+</div>
+</section>
+<section id="question-2-comparing-the-approaches-1" class="slide level2">
+<h2>Question 2: Comparing the Approaches (1)</h2>
+<div style="font-size: 0.6em;">
+<p><strong>Descriptive Analysis:</strong></p>
+<ul>
+<li>Early-adopter states showed larger increases in marijuana-use rates than other states</li>
+</ul>
+<p><strong>Frequentist Test:</strong></p>
+<ul>
+<li>The two-sample t-test found higher average growth in early-adopter states</li>
+<li>However, the difference was not statistically significant</li>
+</ul>
+<p><strong>Bayesian Model:</strong></p>
+<ul>
+<li><p>The model estimated a positive national time trend: <span class="math inline">\(95\%\)</span> CI for <span class="math inline">\(β_1\)</span>: <span class="math inline">\([3.21,\ 3.75]\)</span></p></li>
+<li><p>The post-legalization effect remained strongly positive: <span class="math inline">\(95\%\)</span> CI for <span class="math inline">\(β_2\)</span>: <span class="math inline">\([30.12,\ 49.08]\)</span></p></li>
+<li><p><span class="math inline">\(P(β_2 &gt; 0 \mid data) = 1.00\)</span></p></li>
+</ul>
+<p><strong>Key Insight:</strong> The descriptive and frequentist results suggest an increase after legalization, but the Bayesian model gives the clearest conclusion: even after accounting for a broader upward national trend, post-legalization years in treated states were associated with substantially higher marijuana-use rates.</p>
 </div>
 
 </section>
