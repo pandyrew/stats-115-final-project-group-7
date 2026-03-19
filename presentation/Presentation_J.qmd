@@ -109,12 +109,6 @@ The 18–25 age group shows the highest tobacco usage rate. Rates for all three 
 ## States Ranked by Marijuana Use (2018)
 
 ```{r fig.width=10, fig.height=7}
-# A major weakness of this is that it's just the year 2018.
-# I will think of ways we can restructure this plot so it doesn't suffer from this
-
-# Alternatively, we could focus on how 3/5 stats in the top 4 have it legalized,
-# then this weakness could probably be overlooked
-
 drugs %>%
   filter(Year == max(Year)) %>%
   arrange(desc(`Rates.Marijuana.Used Past Month.18-25`)) %>%
