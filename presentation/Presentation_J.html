@@ -211,7 +211,7 @@ Charles Gao<br>Andrew Hwang<br>Jason Huffstutter<br>Andrew Hahm
 <section id="correlation-matrix" class="slide level2">
 <h2>Correlation Matrix</h2>
 
-<img data-src="Presentation_J_files/figure-revealjs/unnamed-chunk-6-1.png" width="1152" class="r-stretch"><div style="font-size: 0.8em;">
+<img data-src="Presentation_J_files/figure-revealjs/unnamed-chunk-6-1.png" width="1152" class="r-stretch"><div style="font-size: 0.75em;">
 <p><strong>Two distinct camps:</strong> Cocaine &amp; Marijuana users (r = 0.55) vs Alcohol &amp; Tobacco users (r = 0.73)</p>
 <p><strong>Key insight:</strong> Marijuana and Tobacco negatively correlated (r = -0.27) - both are smoking activities, individuals choose one over the other</p>
 </div>
@@ -220,10 +220,14 @@ Charles Gao<br>Andrew Hwang<br>Jason Huffstutter<br>Andrew Hahm
 <h2>All Substance Trends</h2>
 
 <img data-src="Presentation_J_files/figure-revealjs/unnamed-chunk-7-1.png" width="1152" class="r-stretch"></section>
-<section id="question-2-marijuana-legalization" class="slide level2">
-<h2>Question 2: Marijuana Legalization</h2>
-<p><strong>Was early state-level marijuana legalization in 2012 (Washington, Colorado) and 2014 (Alaska, Oregon) associated with higher marijuana-use rates among ages 18–25, beyond the broader national trend?</strong></p>
+<section id="revisiting-our-question" class="slide level2">
+<h2>Revisiting our Question</h2>
+<div style="font-size: 0.8em;">
+<ul>
+<li>Was early state-level marijuana legalization in 2012 (Washington, Colorado) and 2014 (Alaska, Oregon) associated with higher marijuana-use rates among ages 18–25, beyond the broader national trend?</li>
+</ul>
 <p>Our exploratory analysis suggested that marijuana use among <strong>18–25-year-olds</strong> rose in the years following legalization. We then asked whether early-adopter states experienced an additional post-legalization increase relative to the broader national pattern, or whether usage was simply rising along with the national trajectory.</p>
+</div>
 </section>
 <section id="legalization-timeline" class="slide level2">
 <h2>Legalization Timeline</h2>
@@ -254,8 +258,8 @@ Charles Gao<br>Andrew Hwang<br>Jason Huffstutter<br>Andrew Hahm
 <h2>Rate of Change Analysis</h2>
 
 <img data-src="Presentation_J_files/figure-revealjs/unnamed-chunk-10-1.png" width="1152" class="r-stretch"></section>
-<section id="question-2-findings" class="slide level2">
-<h2>Question 2: Findings</h2>
+<section id="findings" class="slide level2">
+<h2>Findings</h2>
 <div style="font-size: 0.6em;">
 <div class="cell">
 <div class="cell-output cell-output-stdout">
@@ -294,14 +298,14 @@ Charles Gao<br>Andrew Hwang<br>Jason Huffstutter<br>Andrew Hahm
 </div>
 <p><strong>Interpretation:</strong></p>
 <ul>
-<li>Larger increases in early-adopter states are consistent with a positive post-legalization association, but do <strong>not by themselves establish causality</strong></li>
+<li>Larger increases in early-adopter states are consistent with a positive post-legalization association, but do <strong>not establish causality by themselves</strong></li>
 <li>Similar increases across groups would be more consistent with a broader national trend</li>
 <li>Baseline differences suggest early-adopter states may already have had stronger underlying demand or different pre-existing preferences</li>
 </ul>
 </div>
 </section>
-<section id="question-2-conclusion" class="slide level2">
-<h2>Question 2: Conclusion</h2>
+<section id="initial-summary" class="slide level2">
+<h2>Initial Summary</h2>
 <div style="font-size: 0.6em;">
 <p><strong>Pre-legalization (before 2012):</strong></p>
 <ul>
@@ -322,12 +326,12 @@ Charles Gao<br>Andrew Hwang<br>Jason Huffstutter<br>Andrew Hahm
 </ul>
 </div>
 </section>
-<section id="question-2-important-caution" class="slide level2">
-<h2>Question 2: Important Caution:</h2>
-<div style="font-size: 0.7em;">
-<p>Because early-adopter states already had higher baseline usage and appear to have been increasing faster even before legalization, this comparison does <strong>not by itself establish a causal effect</strong>.</p>
+<section id="important-caution" class="slide level2">
+<h2>Important Caution</h2>
+<div style="font-size: 0.7em; display: flex; flex-direction: column; gap: 20px;">
+<p>Because early-adopter states already had higher baseline usage and appear to have been increasing faster even before legalization, this comparison does <strong>not establish a causal effect by itself</strong>.</p>
 <p>The post-legalization divergence is consistent with legalization being associated with higher marijuana-use rates, but part of the difference may also reflect pre-existing state-level preferences and trends.</p>
-<p><strong>Answer:</strong> Early-adopter states experienced larger increases in marijuana use among ages 18–25 than other states, but the evidence here should be interpreted as <strong>associational rather than definitively causal</strong>. Legalization may have contributed to the increase, but these states were already different before legalization.</p>
+<p><strong>Proper Interpretation:</strong> Early-adopter states experienced larger increases in marijuana use among ages 18–25 than other states, but the evidence here should be interpreted as <strong>associational rather than definitively causal</strong>. Legalization may have contributed to the increase, but these states were already different before legalization.</p>
 </div>
 </section>
 <section id="statistical-testing-did-legalization-matter" class="slide level2">
@@ -343,7 +347,7 @@ Charles Gao<br>Andrew Hwang<br>Jason Huffstutter<br>Andrew Hahm
 </div>
 </section>
 <section id="interpretation-goal" class="slide level2">
-<h2>Interpretation Goal:</h2>
+<h2>Interpretation Goal</h2>
 <div style="font-size: 0.7em;">
 <p>We estimate whether marijuana-use rates in ages 18–25 were higher in treated states <strong>after their legalization year</strong>, while also accounting for:</p>
 <ul>
@@ -355,7 +359,7 @@ Charles Gao<br>Andrew Hwang<br>Jason Huffstutter<br>Andrew Hahm
 <section id="two-sample-t-test-on-growth-rates" class="slide level2">
 <h2>Two-Sample t-test on Growth Rates</h2>
 <div style="font-size: 0.75em;">
-<p>Let’s run a simple t-test:</p>
+<p>Let’s first run a simple t-test:</p>
 <p><span class="math display">\[
 H_0:\ \mu_{\text{Early growth}} = \mu_{\text{Other growth}}
 \]</span></p>
@@ -385,8 +389,9 @@ Conclusion: No statistically significant difference in average growth was detect
 </div>
 </div>
 </section>
-<section id="bayesian-approach-question-2" class="slide level2">
-<h2>Bayesian Approach: Question 2</h2>
+<section id="a-bayesian-approach" class="slide level2">
+<h2>A Bayesian Approach</h2>
+<div style="font-size: 0.7em;">
 <p><strong>Why Bayesian?</strong></p>
 <ul>
 <li>Quantify <strong>uncertainty</strong> in the effect of legalization</li>
@@ -394,6 +399,7 @@ Conclusion: No statistically significant difference in average growth was detect
 <li>Make probabilistic statements such as: “What is the probability that the post-legalization effect is positive?”</li>
 <li>Incorporate <strong>prior knowledge</strong> about drug use trends</li>
 </ul>
+</div>
 </section>
 <section id="proposed-model" class="slide level2">
 <h2>Proposed Model</h2>
@@ -420,8 +426,8 @@ Rate_{it} \sim \text{Normal}(\mu_{it}, \sigma)
 </div>
 </section>
 <section id="important-note" class="slide level2">
-<h2>Important Note:</h2>
-<div style="font-size: 0.65em;">
+<h2>Important Note</h2>
+<div style="font-size: 0.75em;">
 <p>This is <strong>not</strong> a slope-interaction model such as <span class="math display">\[
 Rate \sim Year + Group + Year \times Group
 \]</span></p>
@@ -448,7 +454,7 @@ Rate \sim Year + Group + Year \times Group
 </section>
 <section id="model-interpretation-continued" class="slide level2">
 <h2>Model Interpretation Continued</h2>
-<div style="font-size: 0.6em;">
+<div style="font-size: 0.7em;">
 <p><strong>Model Note:</strong></p>
 <p>This specification is more flexible than a linear time trend because it does not force national marijuana-use rates to move in a straight line over time.</p>
 <p><strong>Posterior Predictive Checks:</strong></p>
@@ -482,23 +488,6 @@ Rate \sim Year + Group + Year \times Group
 </section>
 <section id="bayesian-analysis-results" class="slide level2">
 <h2>Bayesian Analysis Results</h2>
-<p><strong>Credible Intervals</strong></p>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>                 2.5%     97.5%
-(Intercept) 168.28882 195.14296
-Post         29.02367  46.99303</code></pre>
-</div>
-</div>
-<p><strong>Posterior probability</strong></p>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 1</code></pre>
-</div>
-</div>
-</section>
-<section id="bayesian-analysis-results-continued" class="slide level2">
-<h2>Bayesian Analysis Results Continued</h2>
 <div style="font-size: 0.7em;">
 <p><strong>Posterior Summary:</strong></p>
 <ul>
@@ -508,8 +497,8 @@ Post         29.02367  46.99303</code></pre>
 <p><strong>Interpretation:</strong> After accounting for state-level baseline differences and year-specific national effects, the estimated post-legalization coefficient remains clearly positive. Under this model, post-legalization years in treated states were associated with an additional increase of about 29 to 47 rate points in marijuana-use rates among ages 18–25. This estimate reflects a post-legalization level shift rather than a different slope over time.</p>
 </div>
 </section>
-<section id="question-2-comparing-the-approaches" class="slide level2">
-<h2>Question 2: Comparing the Approaches</h2>
+<section id="comparing-the-approaches" class="slide level2">
+<h2>Comparing the Approaches</h2>
 <div style="font-size: 0.6em;">
 <p><strong>Descriptive Analysis:</strong></p>
 <ul>
@@ -525,12 +514,11 @@ Post         29.02367  46.99303</code></pre>
 <ul>
 <li>The model controls for state-level baseline differences and year-specific national effects</li>
 <li>The post-legalization indicator <span class="math inline">\(Post_{it}\)</span> remained strongly positive: <span class="math inline">\(95\%\)</span> credible interval <span class="math inline">\([29.02,\ 46.99]\)</span></li>
-<li><span class="math inline">\(P(β &gt; 0 \mid data) = 1.00\)</span></li>
 </ul>
 </div>
 </section>
-<section id="question-2-comparing-the-approaches-continued" class="slide level2">
-<h2>Question 2: Comparing the Approaches Continued</h2>
+<section id="comparing-the-approaches-continued" class="slide level2">
+<h2>Comparing the Approaches Continued</h2>
 <div style="font-size: 0.7em;">
 <p><strong>Key Insight:</strong></p>
 <p>Across all three approaches, early-adopter states showed larger post-legalization increases in marijuana-use rates among ages 18–25. The Bayesian model provides the clearest evidence of a positive post-legalization <strong>association</strong>, even after accounting for persistent state differences and flexible year-to-year national shifts. At the same time, because early-adopter states already differed before legalization, the result should be interpreted as strongly suggestive rather than definitively causal.</p>
@@ -538,11 +526,20 @@ Post         29.02367  46.99303</code></pre>
 </section>
 <section id="where-could-we-go-from-here" class="slide level2">
 <h2>Where could we go from here?</h2>
+<div style="font-size: 0.7em;">
 <ul>
-<li><p>We would collect more detailed data, such as county-level or individual-level data, instead of only state-level averages.</p></li>
-<li><p>We would use stronger methods to study causality and better separate the effect of legalization from pre-existing state differences.</p></li>
-<li><p>We would also study other factors like dispensary access, advertising, local policies, and differences across different demographics instead of just age</p></li>
+<li><p>We could study other factors like dispensary access, advertising, and explore different demographics outside of just age.</p></li>
+<li><p>We could increase the timeframe we are looking at to study long term effects, and potentially combine our findings with other datasets that include information on post 2018 legalization.</p></li>
+<li><p>We could collect more detailed data, such as county-level, instead of only state-level averages.</p></li>
+<li><p>We could explore the link between marijuana and other substances, studying more how their rates are related.</p></li>
 </ul>
+</div>
+</section>
+<section class="slide level2">
+
+<div style="display: flex; justify-content: center; align-items: center; height: 100%; font-size: 3em;">
+<p><strong>Thank you</strong></p>
+</div>
 
 </section>
     </div>

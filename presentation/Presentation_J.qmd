@@ -152,7 +152,7 @@ ggplot(cor_df, aes(x = Var1, y = Var2, fill = Correlation)) +
         axis.text.y = element_text(size = 14))
 ```
 
-::: {style="font-size: 0.8em;"}
+::: {style="font-size: 0.75em;"}
 **Two distinct camps:** Cocaine & Marijuana users (r = 0.55) vs Alcohol & Tobacco users (r = 0.73)
 
 **Key insight:** Marijuana and Tobacco negatively correlated (r = -0.27) - both are smoking activities, individuals choose one over the other
@@ -175,11 +175,13 @@ drugs %>%
   theme(legend.position = "none")
 ```
 
-## Question 2: Marijuana Legalization
+## Revisiting our Question
 
-**Was early state-level marijuana legalization in 2012 (Washington, Colorado) and 2014 (Alaska, Oregon) associated with higher marijuana-use rates among ages 18–25, beyond the broader national trend?**
+::: {style="font-size: 0.8em;"}
+-   Was early state-level marijuana legalization in 2012 (Washington, Colorado) and 2014 (Alaska, Oregon) associated with higher marijuana-use rates among ages 18–25, beyond the broader national trend?
 
 Our exploratory analysis suggested that marijuana use among **18–25-year-olds** rose in the years following legalization. We then asked whether early-adopter states experienced an additional post-legalization increase relative to the broader national pattern, or whether usage was simply rising along with the national trajectory.
+:::
 
 ## Legalization Timeline
 
@@ -271,7 +273,7 @@ change_data %>%
   theme_minimal(base_size = 14)
 ```
 
-## Question 2: Findings
+## Findings
 
 ::: {style="font-size: 0.6em;"}
 ```{r}
@@ -315,12 +317,12 @@ cat("  Other States: +", round(increase_other, 2), "(",
 
 **Interpretation:**
 
--   Larger increases in early-adopter states are consistent with a positive post-legalization association, but do **not by themselves establish causality**
+-   Larger increases in early-adopter states are consistent with a positive post-legalization association, but do **not establish causality by themselves**
 -   Similar increases across groups would be more consistent with a broader national trend
 -   Baseline differences suggest early-adopter states may already have had stronger underlying demand or different pre-existing preferences
 :::
 
-## Question 2: Conclusion
+## Initial Summary
 
 ::: {style="font-size: 0.6em;"}
 **Pre-legalization (before 2012):**
@@ -346,14 +348,14 @@ cat("  Other States: +", round(increase_other, 2), "(",
 -   Other states: **21.1% increase** (+36.8 per 1000)
 :::
 
-## Question 2: Important Caution:
+## Important Caution
 
-::: {style="font-size: 0.7em;"}
-Because early-adopter states already had higher baseline usage and appear to have been increasing faster even before legalization, this comparison does **not by itself establish a causal effect**.
+::: {style="font-size: 0.7em; display: flex; flex-direction: column; gap: 20px;"}
+Because early-adopter states already had higher baseline usage and appear to have been increasing faster even before legalization, this comparison does **not establish a causal effect by itself**.
 
 The post-legalization divergence is consistent with legalization being associated with higher marijuana-use rates, but part of the difference may also reflect pre-existing state-level preferences and trends.
 
-**Answer:** Early-adopter states experienced larger increases in marijuana use among ages 18–25 than other states, but the evidence here should be interpreted as **associational rather than definitively causal**. Legalization may have contributed to the increase, but these states were already different before legalization.
+**Proper Interpretation:** Early-adopter states experienced larger increases in marijuana use among ages 18–25 than other states, but the evidence here should be interpreted as **associational rather than definitively causal**. Legalization may have contributed to the increase, but these states were already different before legalization.
 :::
 
 ## Statistical Testing: Did Legalization Matter?
@@ -370,7 +372,7 @@ Because legalization occurred at different times across the treated states, we d
 This means $Post_{it}$ already represents the treatment exposure for early-adopter states after legalization. It is effectively a **treated × post** indicator, so we do **not** need a separate interaction term such as $EarlyAdopter_i \times Post_t$ in this model.
 :::
 
-## Interpretation Goal:
+## Interpretation Goal
 
 ::: {style="font-size: 0.7em;"}
 We estimate whether marijuana-use rates in ages 18–25 were higher in treated states **after their legalization year**, while also accounting for:
@@ -382,7 +384,7 @@ We estimate whether marijuana-use rates in ages 18–25 were higher in treated s
 ## Two-Sample t-test on Growth Rates
 
 ::: {style="font-size: 0.75em;"}
-Let's run a simple t-test:
+Let's first run a simple t-test:
 
 $$
 H_0:\ \mu_{\text{Early growth}} = \mu_{\text{Other growth}}
@@ -393,6 +395,13 @@ H_1:\ \mu_{\text{Early growth}} > \mu_{\text{Other growth}}
 $$
 
 ```{r}
+# I have some questions about this block
+# The early adopter growth is 34.9 and the baseline is 23.13.
+# I'm a little confused on why these numbers are different from the 33.5 and 21.1
+# numbers respectively we looked at earlier.
+
+
+
 early_states <- c("Washington", "Colorado", "Alaska", "Oregon")
 
 growth_data <- drugs %>%
@@ -417,14 +426,16 @@ cat("\nConclusion:", ifelse(t_test$p.value < 0.05,
 ```
 :::
 
-## Bayesian Approach: Question 2
+## A Bayesian Approach
 
+::: {style="font-size: 0.7em;"}
 **Why Bayesian?**
 
 -   Quantify **uncertainty** in the effect of legalization
 -   Get **probability distributions** instead of just point estimates
 -   Make probabilistic statements such as: "What is the probability that the post-legalization effect is positive?"
 -   Incorporate **prior knowledge** about drug use trends
+:::
 
 ## Proposed Model
 
@@ -453,9 +464,9 @@ $$
 A single linear time term assumes marijuana-use rates changed at a constant national rate over time. Using year effects is more flexible: it allows each year to have its own national shift, which better captures non-linear changes in marijuana use over the sample period.
 :::
 
-## Important Note:
+## Important Note
 
-::: {style="font-size: 0.65em;"}
+::: {style="font-size: 0.75em;"}
 This is **not** a slope-interaction model such as $$
 Rate \sim Year + Group + Year \times Group
 $$
@@ -484,7 +495,7 @@ Because $Post_{it}$ is defined separately for each state based on its own legali
 
 ## Model Interpretation Continued
 
-::: {style="font-size: 0.6em;"}
+::: {style="font-size: 0.7em;"}
 **Model Note:**
 
 This specification is more flexible than a linear time trend because it does not force national marijuana-use rates to move in a straight line over time.
@@ -576,22 +587,6 @@ Our simulated data from the posterior match the observed distribution and trend 
 
 ## Bayesian Analysis Results
 
-**Credible Intervals**
-
-```{r}
-ci95 <- posterior_interval(legalization_model, prob = 0.95)
-ci95[c("(Intercept)", "Post"), , drop = FALSE]
-```
-
-**Posterior probability**
-
-```{r}
-post <- as.matrix(legalization_model)
-mean(post[, "Post"] > 0)
-```
-
-## Bayesian Analysis Results Continued
-
 ::: {style="font-size: 0.7em;"}
 **Posterior Summary:**
 
@@ -602,7 +597,7 @@ mean(post[, "Post"] > 0)
 **Interpretation:** After accounting for state-level baseline differences and year-specific national effects, the estimated post-legalization coefficient remains clearly positive. Under this model, post-legalization years in treated states were associated with an additional increase of about 29 to 47 rate points in marijuana-use rates among ages 18–25. This estimate reflects a post-legalization level shift rather than a different slope over time.
 :::
 
-## Question 2: Comparing the Approaches
+## Comparing the Approaches
 
 ::: {style="font-size: 0.6em;"}
 **Descriptive Analysis:**
@@ -619,10 +614,9 @@ mean(post[, "Post"] > 0)
 
 -   The model controls for state-level baseline differences and year-specific national effects
 -   The post-legalization indicator $Post_{it}$ remained strongly positive: $95\%$ credible interval $[29.02,\ 46.99]$
--   $P(β > 0 \mid data) = 1.00$
 :::
 
-## Question 2: Comparing the Approaches Continued
+## Comparing the Approaches Continued
 
 ::: {style="font-size: 0.7em;"}
 **Key Insight:**
@@ -632,8 +626,18 @@ Across all three approaches, early-adopter states showed larger post-legalizatio
 
 ## Where could we go from here?
 
--   We would collect more detailed data, such as county-level or individual-level data, instead of only state-level averages.
+::: {style="font-size: 0.7em;"}
+-   We could study other factors like dispensary access, advertising, and explore different demographics outside of just age.
 
--   We would use stronger methods to study causality and better separate the effect of legalization from pre-existing state differences.
+-   We could increase the timeframe we are looking at to study long term effects, and potentially combine our findings with other datasets that include information on post 2018 legalization.
 
--   We would also study other factors like dispensary access, advertising, local policies, and differences across different demographics instead of just age
+-   We could collect more detailed data, such as county-level, instead of only state-level averages.
+
+-   We could explore the link between marijuana and other substances, studying more how their rates are related.
+:::
+
+---
+
+::: {style="display: flex; justify-content: center; align-items: center; height: 100%; font-size: 3em;"}
+**Thank you**
+:::
