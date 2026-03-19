@@ -87,25 +87,6 @@ drugs %>%
 The 18–25 age group shows an increasing rate over time and remains significantly higher than the other two age groups.
 :::
 
-## Tobacco Trends
-
-```{r fig.width=12, fig.height=6}
-drugs %>%
-  select(Year, 
-         `Rates.Tobacco.Cigarette Past Month.12-17`,
-         `Rates.Tobacco.Cigarette Past Month.18-25`,
-         `Rates.Tobacco.Cigarette Past Month.26+`) %>%
-  pivot_longer(cols = -Year, names_to = "Age_Group", values_to = "Rate") %>%
-  mutate(Age_Group = str_extract(Age_Group, "12-17|18-25|26\\+")) %>%
-  ggplot(aes(x = Year, y = Rate, color = Age_Group)) +
-  geom_smooth(se = TRUE) +
-  labs(title = "Tobacco Use Over Time", y = "Rate per 1000")
-```
-
-::: {style="font-size: 60%;"}
-The 18–25 age group shows the highest tobacco usage rate. Rates for all three age groups gradually decline over time, but at different speeds, with the 18–25 group eventually converging with the 26+ group.
-:::
-
 ## States Ranked by Marijuana Use (2018)
 
 ```{r fig.width=10, fig.height=7}
@@ -309,6 +290,8 @@ cat("  Other States: +", round(increase_other, 2), "(",
     round(100 * increase_other / pre_2012$Avg_Rate[pre_2012$Group == "Other States"], 1), "% increase)\n")
 ```
 
+*Note: This analysis uses all pre-2012 vs all post-2014 data for comprehensive coverage.*
+
 **Interpretation:**
 
 -   Larger increases in early-adopter states are consistent with a positive post-legalization association, but do **not establish causality by themselves**
@@ -418,6 +401,8 @@ cat("\nConclusion:", ifelse(t_test$p.value < 0.05,
                             "Average growth was statistically higher in early-adopter states", 
                             "No statistically significant difference in average growth was detected"))
 ```
+
+**Note:** This t-test uses 2010-2011 (pre) vs 2015-2016 (post) for a clean comparison around the legalization dates.
 :::
 
 ## A Bayesian Approach
@@ -630,7 +615,7 @@ Across all three approaches, early-adopter states showed larger post-legalizatio
 -   We could explore the link between marijuana and other substances, studying more how their rates are related.
 :::
 
----
+------------------------------------------------------------------------
 
 ::: {style="display: flex; justify-content: center; align-items: center; height: 100%; font-size: 3em;"}
 **Thank you**
