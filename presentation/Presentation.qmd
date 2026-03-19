@@ -372,13 +372,6 @@ H_1:\ \mu_{\text{Early growth}} > \mu_{\text{Other growth}}
 $$
 
 ```{r}
-# I have some questions about this block
-# The early adopter growth is 34.9 and the baseline is 23.13.
-# I'm a little confused on why these numbers are different from the 33.5 and 21.1
-# numbers respectively we looked at earlier.
-
-
-
 early_states <- c("Washington", "Colorado", "Alaska", "Oregon")
 
 growth_data <- drugs %>%
