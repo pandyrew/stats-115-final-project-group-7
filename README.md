@@ -1,18 +1,11 @@
 # stats-115-final-project-group-7
 
-Questions:
+Link to Github repository:  
+https://github.com/pandyrew/stats-115-final-project-group-7
+Group members:   
+Charles Gao, Andrew Hwang, Jason Huffstutter, Andrew Hahm
 
-Eventually we're going to knit the slideshow to a pdf and upload that to the 
-github as well right?  In case of weird html issues?
-
-I think the presentation files are necessary to render the slide shows correctly,
-as of now I just pushed stuff through the .gitignore but that's not good - should
-be fixed later
-
-
-In terms of cleaning up the repo, what's with the .DS_Store thing? Some r-file 
-related to the model or something?  Is this necessary?  That would be a good
-thing to add to the .gitignore if possible
-
-Also repo related, are we going to keep this readme?  - prop not right there's
-no reason to??
+We enjoyed this project so much that we originally built a slideshow/report
+that was too long to include for our 5 minute video!  Each version is valid and
+should meet all requirements, but, if you are interested, we would appreciate it
+if you check out our longer version!  
