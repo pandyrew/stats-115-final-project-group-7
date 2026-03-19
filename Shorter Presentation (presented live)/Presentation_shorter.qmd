@@ -1,0 +1,500 @@
+---
+title: "Legalization<br>& Cannabis Use"
+subtitle: "Stats 115 Final Project"
+author: "Charles Gao<br>Andrew Hwang<br>Jason Huffstutter<br>Andrew Hahm"
+format: revealjs
+editor: visual
+---
+
+```{r}
+suppressWarnings(suppressMessages({
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(stringr)
+library(bayesrules)
+library(rstanarm)
+library(bayesplot)
+library(tidyverse)
+library(broom.mixed)
+library(tidybayes)
+}))
+drugs <- read_csv("../data/drugs.csv")
+```
+
+## Our Research Question
+
+-   Was early state-level marijuana legalization in 2012 (Washington, Colorado) and 2014 (Alaska, Oregon) associated with higher marijuana-use rates among ages 18–25, beyond the broader national trend?
+
+## Background & Motivation
+
+::: {style="font-size: 0.75em;"}
+Why should we care about this topic?
+
+-   Marijuana legalization is a policy issue in the United States that goes beyond red/blue politics, as it reflects family dynamics, community experiences, and personal values.
+
+-   A key concern is whether legalization is associated with significantly higher marijuana use, especially among young adults.
+
+Who will these results help in the future?
+
+-   Policymakers can use these results to better understand how marijuana regulation can affect younger demographics.
+
+-   Public health groups and schools can use this information to better educate and improve prevention efforts.
+
+-   Individuals can gain knowledge to create more informed opinions.
+:::
+
+## Dataset Overview
+
+::: {style="font-size: 0.7em;"}
+```{r}
+cat("Dimensions:", nrow(drugs), "observations ×", ncol(drugs), "variables\n")
+cat("Years:", min(drugs$Year), "-", max(drugs$Year), "\n")
+cat("States:", length(unique(drugs$State)), "(includes Washington D.C.)\n")
+```
+
+**Key Variables:**
+
+-   **Demographics**: State, Year, Population by age group
+-   **Substances**: Marijuana, Tobacco, Alcohol, Cocaine
+-   **Metrics**: Totals (counts) and Rates (per 1000 people)
+-   **Time frames**: Past month, past year usage
+
+**Age Groups:**
+
+-   12-17 (adolescents)
+-   18-25 (young adults)
+-   26+ (adults)
+:::
+
+## Marijuana Trends by Age
+
+```{r fig.width=12, fig.height=6}
+drugs %>%
+  select(Year, 
+         `Rates.Marijuana.Used Past Month.12-17`,
+         `Rates.Marijuana.Used Past Month.18-25`,
+         `Rates.Marijuana.Used Past Month.26+`) %>%
+  pivot_longer(cols = -Year, names_to = "Age_Group", values_to = "Rate") %>%
+  mutate(Age_Group = str_extract(Age_Group, "12-17|18-25|26\\+")) %>%
+  ggplot(aes(x = Year, y = Rate, color = Age_Group)) +
+  geom_smooth(se = TRUE) +
+  labs(title = "Marijuana Use Over Time", y = "Rate per 1000")
+```
+
+::: {style="font-size: 60%;"}
+The 18–25 age group shows an increasing rate over time and remains significantly higher than the other two age groups.
+:::
+
+## States Ranked by Marijuana Use (2018)
+
+```{r fig.width=10, fig.height=7}
+drugs %>%
+  filter(Year == max(Year)) %>%
+  arrange(desc(`Rates.Marijuana.Used Past Month.18-25`)) %>%
+  slice(1:15) %>%
+  ggplot(aes(x = reorder(State, `Rates.Marijuana.Used Past Month.18-25`), 
+             y = `Rates.Marijuana.Used Past Month.18-25`)) +
+  geom_col(fill = "steelblue") +
+  coord_flip() +
+  labs(title = "Top 15 States: Marijuana Use (18-25)", x = "", y = "Rate per 1000")
+```
+
+## Correlation Matrix
+
+```{r fig.width=12, fig.height=10}
+cor_data <- drugs %>%
+  select(Marijuana = `Rates.Marijuana.Used Past Month.18-25`,
+         Alcohol = `Rates.Alcohol.Use Disorder Past Year.18-25`,
+         Tobacco = `Rates.Tobacco.Cigarette Past Month.18-25`,
+         Cocaine = `Rates.Illicit Drugs.Cocaine Used Past Year.18-25`)
+
+cor_matrix <- cor(cor_data, use = "complete.obs")
+
+cor_df <- as.data.frame(as.table(cor_matrix))
+names(cor_df) <- c("Var1", "Var2", "Correlation")
+
+ggplot(cor_df, aes(x = Var1, y = Var2, fill = Correlation)) +
+  geom_tile(color = "white", size = 1) +
+  geom_text(aes(label = round(Correlation, 2)), size = 8) +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", 
+                       midpoint = 0, limits = c(-1, 1)) +
+  labs(title = "Correlation Between Substances (18-25)") +
+  theme_minimal(base_size = 16) +
+  theme(axis.title = element_blank(),
+        axis.text.x = element_text(angle = 45, hjust = 1, size = 14),
+        axis.text.y = element_text(size = 14))
+```
+
+::: {style="font-size: 0.75em;"}
+**Two distinct camps:** Cocaine & Marijuana users (r = 0.55) vs Alcohol & Tobacco users (r = 0.73)
+
+**Key insight:** Marijuana and Tobacco negatively correlated (r = -0.27) - both are smoking activities, individuals choose one over the other
+:::
+
+## All Substance Trends
+
+```{r fig.width=12, fig.height=7}
+drugs %>%
+  select(Year, 
+         Alcohol = `Rates.Alcohol.Use Past Month.18-25`,
+         Marijuana = `Rates.Marijuana.Used Past Month.18-25`,
+         Tobacco = `Rates.Tobacco.Cigarette Past Month.18-25`,
+         Cocaine = `Rates.Illicit Drugs.Cocaine Used Past Year.18-25`) %>%
+  pivot_longer(cols = -Year, names_to = "Substance", values_to = "Rate") %>%
+  ggplot(aes(x = Year, y = Rate, color = Substance)) +
+  geom_smooth(se = TRUE) +
+  facet_wrap(~Substance, scales = "free_y") +
+  labs(title = "All Substances (18-25 Age Group)") +
+  theme(legend.position = "none")
+```
+
+## Revisiting our Question
+
+::: {style="font-size: 0.8em;"}
+-   Was early state-level marijuana legalization in 2012 (Washington, Colorado) and 2014 (Alaska, Oregon) associated with higher marijuana-use rates among ages 18–25, beyond the broader national trend?
+
+Our exploratory analysis suggested that marijuana use among **18–25-year-olds** rose in the years following legalization. We then asked whether early-adopter states experienced an additional post-legalization increase relative to the broader national pattern, or whether usage was simply rising along with the national trajectory.
+:::
+
+## Legalization Timeline
+
+::: {style="font-size: 0.75em;"}
+**Early Adopter States:**
+
+-   **2012**: Washington & Colorado legalized recreational marijuana
+-   **2014**: Alaska & Oregon legalized recreational marijuana
+
+**Our Analysis:**
+
+Compare marijuana usage rates in these 4 early-adopter states vs. all other states to identify:
+
+1.  Pre-legalization baseline differences
+2.  Post-legalization divergence (if any)
+3.  Whether early-adopter states showed larger post-legalization increases than other states
+:::
+
+## Marijuana Rates: Early Adopters vs Others
+
+```{r fig.width=12, fig.height=7}
+early_states <- c("Washington", "Colorado", "Alaska", "Oregon")
+
+drugs %>%
+  mutate(Group = ifelse(State %in% early_states, "Early Adopters", "Other States")) %>%
+  group_by(Year, Group) %>%
+  summarise(Avg_Rate = mean(`Rates.Marijuana.Used Past Month.18-25`, na.rm = TRUE), .groups = "drop") %>%
+  ggplot(aes(x = Year, y = Avg_Rate, color = Group, group = Group)) +
+  geom_line(size = 1.5) +
+  geom_point(size = 3) +
+  geom_vline(xintercept = 2012, linetype = "dashed", color = "red", size = 1) +
+  geom_vline(xintercept = 2014, linetype = "dashed", color = "orange", size = 1) +
+  annotate("text", x = 2012, y = Inf, label = "2012: WA, CO", 
+           vjust = 1.5, hjust = -0.1, color = "red", size = 4) +
+  annotate("text", x = 2014, y = Inf, label = "2014: AK, OR", 
+           vjust = 1.5, hjust = -0.1, color = "orange", size = 4) +
+  labs(title = "Marijuana Use Rates: Early Adopters vs Other States (18-25)",
+       y = "Rate per 1000",
+       color = "State Group") +
+  scale_color_manual(values = c("Early Adopters" = "#009E73", "Other States" = "#999999")) +
+  theme_minimal(base_size = 14)
+```
+
+## Pre vs Post Legalization Trends
+
+```{r fig.width=12, fig.height=7}
+drugs %>%
+  filter(State %in% early_states) %>%
+  mutate(Period = ifelse(Year < 2012, "Pre-2012", 
+                         ifelse(Year >= 2012 & Year < 2014, "2012-2013",
+                                "Post-2014")),
+         Period = factor(Period, levels = c("Pre-2012", "2012-2013", "Post-2014"))) %>%
+  ggplot(aes(x = Year, y = `Rates.Marijuana.Used Past Month.18-25`, color = State)) +
+  geom_line(size = 1.2) +
+  geom_point(size = 2.5) +
+  geom_vline(xintercept = 2012, linetype = "dashed", color = "red", size = 1) +
+  geom_vline(xintercept = 2014, linetype = "dashed", color = "orange", size = 1) +
+  facet_wrap(~State, ncol = 2) +
+  labs(title = "Marijuana Use in Early Adopter States (18-25)",
+       y = "Rate per 1000") +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "none")
+```
+
+## Findings
+
+::: {style="font-size: 0.6em;"}
+```{r}
+early_states <- c("Washington", "Colorado", "Alaska", "Oregon")
+
+pre_2012 <- drugs %>%
+  filter(Year < 2012) %>%
+  mutate(Group = ifelse(State %in% early_states, "Early Adopters", "Other States")) %>%
+  group_by(Group) %>%
+  summarise(Avg_Rate = mean(`Rates.Marijuana.Used Past Month.18-25`, na.rm = TRUE))
+
+post_2014 <- drugs %>%
+  filter(Year >= 2014) %>%
+  mutate(Group = ifelse(State %in% early_states, "Early Adopters", "Other States")) %>%
+  group_by(Group) %>%
+  summarise(Avg_Rate = mean(`Rates.Marijuana.Used Past Month.18-25`, na.rm = TRUE))
+
+cat("Pre-2012 Average Rates (per 1000):\n")
+cat("  Early Adopters:", round(pre_2012$Avg_Rate[pre_2012$Group == "Early Adopters"], 2), "\n")
+cat("  Other States:", round(pre_2012$Avg_Rate[pre_2012$Group == "Other States"], 2), "\n")
+cat("  Difference:", round(pre_2012$Avg_Rate[pre_2012$Group == "Early Adopters"] - 
+                           pre_2012$Avg_Rate[pre_2012$Group == "Other States"], 2), "\n\n")
+
+cat("Post-2014 Average Rates (per 1000):\n")
+cat("  Early Adopters:", round(post_2014$Avg_Rate[post_2014$Group == "Early Adopters"], 2), "\n")
+cat("  Other States:", round(post_2014$Avg_Rate[post_2014$Group == "Other States"], 2), "\n")
+cat("  Difference:", round(post_2014$Avg_Rate[post_2014$Group == "Early Adopters"] - 
+                           post_2014$Avg_Rate[post_2014$Group == "Other States"], 2), "\n\n")
+
+increase_early <- post_2014$Avg_Rate[post_2014$Group == "Early Adopters"] - 
+                  pre_2012$Avg_Rate[pre_2012$Group == "Early Adopters"]
+increase_other <- post_2014$Avg_Rate[post_2014$Group == "Other States"] - 
+                  pre_2012$Avg_Rate[pre_2012$Group == "Other States"]
+
+cat("Change from Pre-2012 to Post-2014:\n")
+cat("  Early Adopters: +", round(increase_early, 2), "(", 
+    round(100 * increase_early / pre_2012$Avg_Rate[pre_2012$Group == "Early Adopters"], 1), "% increase)\n")
+cat("  Other States: +", round(increase_other, 2), "(", 
+    round(100 * increase_other / pre_2012$Avg_Rate[pre_2012$Group == "Other States"], 1), "% increase)\n")
+```
+
+*Note: This analysis uses all pre-2012 vs all post-2014 data for comprehensive coverage.*
+
+**Interpretation:**
+
+-   Larger increases in early-adopter states are consistent with a positive post-legalization association, but do **not establish causality by themselves**
+-   Similar increases across groups would be more consistent with a broader national trend
+-   Baseline differences suggest early-adopter states may already have had stronger underlying demand or different pre-existing preferences
+:::
+
+## Statistical Testing: Did Legalization Matter?
+
+::: {style="font-size: 0.7em;"}
+**Modeling Strategy:**
+
+Because legalization occurred at different times across the treated states, we define a **state-specific post-legalization indicator**:
+
+-   $Post_{it}=1$ if state $i$ is in a legalized period in year $t$
+
+-   $Post_{it}=0$ otherwise
+
+This means $Post_{it}$ already represents the treatment exposure for early-adopter states after legalization. It is effectively a **treated × post** indicator, so we do **not** need a separate interaction term such as $EarlyAdopter_i \times Post_t$ in this model.
+:::
+
+## Two-Sample t-test on Growth Rates
+
+::: {style="font-size: 0.75em;"}
+Let's first run a simple t-test:
+
+$$
+H_0:\ \mu_{\text{Early growth}} = \mu_{\text{Other growth}}
+$$
+
+$$
+H_1:\ \mu_{\text{Early growth}} > \mu_{\text{Other growth}}
+$$
+
+```{r}
+early_states <- c("Washington", "Colorado", "Alaska", "Oregon")
+
+growth_data <- drugs %>%
+  filter(Year %in% c(2010, 2011, 2015, 2016)) %>%
+  mutate(Group = ifelse(State %in% early_states, "Early", "Other"),
+         Period = ifelse(Year <= 2011, "Pre", "Post")) %>%
+  group_by(State, Group, Period) %>%
+  summarise(Avg_Rate = mean(`Rates.Marijuana.Used Past Month.18-25`, na.rm = TRUE), .groups = "drop") %>%
+  pivot_wider(names_from = Period, values_from = Avg_Rate) %>%
+  mutate(Growth = Post - Pre)
+
+t_test <- t.test(Growth ~ Group, data = growth_data, alternative = "greater")
+
+cat("Two-Sample t-test: Early Adopters vs Other States\n")
+cat("Mean growth Early Adopters:", round(mean(growth_data$Growth[growth_data$Group == "Early"], na.rm = TRUE), 2), "\n")
+cat("Mean growth Other States:", round(mean(growth_data$Growth[growth_data$Group == "Other"], na.rm = TRUE), 2), "\n")
+cat("t-statistic:", round(t_test$statistic, 3), "\n")
+cat("p-value:", round(t_test$p.value, 4), "\n")
+cat("\nConclusion:", ifelse(t_test$p.value < 0.05, 
+                            "Average growth was statistically higher in early-adopter states", 
+                            "No statistically significant difference in average growth was detected"))
+```
+
+**Note:** This t-test uses 2010-2011 (pre) vs 2015-2016 (post) for a clean comparison around the legalization dates.
+:::
+
+## Proposed Model
+
+::: {style="font-size: 0.7em;"}
+$$
+Rate_{it} \sim \text{Normal}(\mu_{it}, \sigma)
+$$
+
+$$
+\mu_{it} = \alpha_i + \lambda_t + \beta Post_{it}
+$$
+:::
+
+**Where:**
+
+::: {style="font-size: 0.65em;"}
+-   $Rate_{it}$ is the marijuana-use rate for state $i$ in year $t$
+-   $\alpha_i$ is the state-specific baseline level
+-   $\lambda_t$ is the year-specific effect shared by all states
+-   $Post_{it}$ is a state-specific post-legalization indicator
+:::
+
+**Why use year effects instead of a linear year trend?**
+
+::: {style="font-size: 0.65em;"}
+A single linear time term assumes marijuana-use rates changed at a constant national rate over time. Using year effects is more flexible: it allows each year to have its own national shift, which better captures non-linear changes in marijuana use over the sample period.
+:::
+
+## Model Interpretation
+
+::: {style="font-size: 0.6em;"}
+**Key Parameter:** $β$ ($Post_{it}$)
+
+If $β > 0$, then marijuana-use rates were higher in treated states during their post-legalization years, after accounting for:
+
+-   baseline differences across states through $α_i$
+-   nationwide year-to-year shocks through $λ_t$
+
+Because $Post_{it}$ is defined separately for each state based on its own legalization year, it already serves as the treatment indicator for “treated state after legalization.”
+
+**Parameter meanings:**
+
+-   $α_i$: state-specific baseline marijuana-use level
+-   $λ_t$: year-specific national effect
+-   $β$: additional post-legalization shift in treated states
+:::
+
+```{r}
+early_states <- c("Washington", "Colorado", "Alaska", "Oregon")
+
+drugs_q2 <- drugs %>%
+  mutate(
+    Rate = `Rates.Marijuana.Used Past Month.18-25`,
+    LegalYear = case_when(
+      State == "Washington" ~ 2012,
+      State == "Colorado" ~ 2012,
+      State == "Alaska" ~ 2014,
+      State == "Oregon" ~ 2014,
+      TRUE ~ 9999
+    ),
+    Post = if_else(Year >= LegalYear, 1, 0)
+  ) %>%
+  filter(!is.na(Rate)) %>%
+  select(State, Year, Rate, Post)
+```
+
+```{r}
+if (file.exists("legalization_model.rds")) {
+  legalization_model <- readRDS("legalization_model.rds")
+} else {
+  legalization_model <- stan_glmer(
+    Rate ~ factor(Year) + Post + (1 | State),
+    data = drugs_q2,
+    family = gaussian(),
+    prior_intercept = normal(180, 50, autoscale = FALSE),
+    prior = normal(0, 20, autoscale = FALSE),
+    prior_aux = exponential(1, autoscale = TRUE),
+    chains = 4,
+    iter = 5000 * 2,
+    seed = 84735,
+    refresh = 0
+  )
+  saveRDS(legalization_model, "legalization_model.rds")
+}
+
+
+```
+
+## MCMC Trace
+
+```{r}
+mcmc_trace(
+  as.array(legalization_model),
+  pars = c("(Intercept)", "Post", "sigma", "Sigma[State:(Intercept),(Intercept)]"),
+  size = 0.2
+)
+```
+
+::: {style="font-size: 0.6em;"}
+The traceplots show good mixing across chains
+:::
+
+## MCMC Density Overlay
+
+```{r}
+mcmc_dens_overlay(
+  as.array(legalization_model),
+  pars = c("(Intercept)", "Post", "sigma")
+)
+```
+
+::: {style="font-size: 0.6em;"}
+Density overlays are quite consistent across chains. Intercept chains showed slight variation, but overall the posterior simulation converged well and the MCMC samples are reliable for inference.
+:::
+
+## Posterior Predictive Check
+
+```{r}
+pp_check(legalization_model)
+```
+
+::: {style="font-size: 0.6em;"}
+Our simulated data from the posterior match the observed distribution and trend quite well. The model captures the main structure of the marijuana-use data reasonably well.
+:::
+
+## Bayesian Analysis Results
+
+::: {style="font-size: 0.7em;"}
+**Posterior Summary:**
+
+-   $95\%$ credible interval for $β$ ($Post_{it}$): $[29.02,\ 46.99]$
+
+-   $P(β > 0 \mid data) = 1.00$
+
+**Interpretation:** After accounting for state-level baseline differences and year-specific national effects, the estimated post-legalization coefficient remains clearly positive. Under this model, post-legalization years in treated states were associated with an additional increase of about 29 to 47 rate points in marijuana-use rates among ages 18–25. This estimate reflects a post-legalization level shift rather than a different slope over time.
+:::
+
+## Comparing the Approaches
+
+::: {style="font-size: 0.6em;"}
+**Descriptive Analysis:**
+
+-   Early-adopter states showed larger increases in marijuana-use rates than other states
+-   However, these states also had higher baseline usage before legalization
+
+**Frequentist Test:**
+
+-   The two-sample t-test found higher average growth in early-adopter states
+-   However, the difference was not statistically significant
+
+**Bayesian Model:**
+
+-   The model controls for state-level baseline differences and year-specific national effects
+-   The post-legalization indicator $Post_{it}$ remained strongly positive: $95\%$ credible interval $[29.02,\ 46.99]$
+:::
+
+## Where could we go from here?
+
+::: {style="font-size: 0.7em;"}
+-   We could study other factors like dispensary access, advertising, and explore different demographics outside of just age.
+
+-   We could increase the timeframe we are looking at to study long term effects, and potentially combine our findings with other datasets that include information on post 2018 legalization.
+
+-   We could collect more detailed data, such as county-level, instead of only state-level averages.
+
+-   We could explore the link between marijuana and other substances, studying more how their rates are related.
+:::
+
+------------------------------------------------------------------------
+
+::: {style="display: flex; justify-content: center; align-items: center; height: 100%; font-size: 3em;"}
+**Thank you**
+:::
