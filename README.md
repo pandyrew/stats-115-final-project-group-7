@@ -1,7 +1,7 @@
 # stats-115-final-project-group-7
 
 Link to Github repository:  
-https://github.com/pandyrew/stats-115-final-project-group-7
+https://github.com/pandyrew/stats-115-final-project-group-7  
 Group members:   
 Charles Gao, Andrew Hwang, Jason Huffstutter, Andrew Hahm
 
