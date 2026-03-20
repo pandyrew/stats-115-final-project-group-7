@@ -407,6 +407,19 @@ $$
 A single linear time term assumes marijuana-use rates changed at a constant national rate over time. Using year effects is more flexible: it allows each year to have its own national shift, which better captures non-linear changes in marijuana use over the sample period.
 :::
 
+## Prior Choices and Statistical Decisions
+
+::: {style="font-size: 0.66em;"}
+
+**Weakly informative priors used:**
+
+- Intercept: ${Normal}(180, 50)$  
+- Coefficients ($Post_{it}$ and year effects): ${Normal}(0, 20)$  
+- Residual SD: ${Exponential}(1)$  
+
+They reflect plausible rate levels, keep effects centered at no change unless the data suggest otherwise, and help regularize the model without overwhelming the evidence from the data.
+:::
+
 ## Model Interpretation
 
 ::: {style="font-size: 0.6em;"}
