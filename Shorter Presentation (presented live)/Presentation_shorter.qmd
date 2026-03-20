@@ -2,7 +2,10 @@
 title: "Legalization<br>& Cannabis Use"
 subtitle: "Stats 115 Final Project"
 author: "Charles Gao<br>Andrew Hwang<br>Jason Huffstutter<br>Andrew Hahm"
-format: revealjs
+format: 
+  revealjs: 
+    self-contained: true
+    embed-resources: true
 editor: visual
 ---
 
@@ -89,7 +92,7 @@ The 18–25 age group shows an increasing rate over time and remains significant
 
 ## States Ranked by Marijuana Use (2018)
 
-```{r fig.width=10, fig.height=7}
+```{r fig.width=10, fig.height=5}
 drugs %>%
   filter(Year == max(Year)) %>%
   arrange(desc(`Rates.Marijuana.Used Past Month.18-25`)) %>%
@@ -177,7 +180,7 @@ Compare marijuana usage rates in these 4 early-adopter states vs. all other stat
 
 ## Marijuana Rates: Early Adopters vs Others
 
-```{r fig.width=12, fig.height=7}
+```{r fig.width=12, fig.height=5}
 early_states <- c("Washington", "Colorado", "Alaska", "Oregon")
 
 drugs %>%
