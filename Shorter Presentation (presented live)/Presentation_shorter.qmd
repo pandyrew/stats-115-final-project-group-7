@@ -74,6 +74,13 @@ cat("States:", length(unique(drugs$State)), "(includes Washington D.C.)\n")
 ## Marijuana Trends by Age
 
 ```{r fig.width=12, fig.height=6}
+# Plot marijuana use rates over time by age group.
+# 1. Selects the survey year and marijuana-use rates for three age groups.
+# 2. Reshapes the data from wide format to long format so ggplot can map age group to color.
+# 3. Cleans the age-group labels to keep only "12-17", "18-25", and "26+".
+# 4. Draws smoothed trend lines over time with confidence bands.
+# 5. Adds a title and y-axis label.
+
 drugs %>%
   select(Year, 
          `Rates.Marijuana.Used Past Month.12-17`,
@@ -93,6 +100,14 @@ The 18–25 age group shows an increasing rate over time and remains significant
 ## States Ranked by Marijuana Use (2018)
 
 ```{r fig.width=10, fig.height=5}
+# Identify the 15 states with the highest past-month marijuana-use rates
+# among ages 18–25 in the most recent year of the dataset.
+#
+# 1. Keeps only observations from the latest year available.
+# 2. Sorts states from highest to lowest marijuana-use rate for ages 18–25.
+# 3. Selects the top 15 states.
+# 4. Creates a horizontal bar chart for easier state-name readability.
+#
 drugs %>%
   filter(Year == max(Year)) %>%
   arrange(desc(`Rates.Marijuana.Used Past Month.18-25`)) %>%
@@ -107,6 +122,14 @@ drugs %>%
 ## Correlation Matrix
 
 ```{r fig.width=12, fig.height=10}
+# Identify the 15 states with the highest past-month marijuana-use rates
+# among ages 18–25 in the most recent year of the dataset.
+#
+# 1. Keeps only observations from the latest year available.
+# 2. Sorts states from highest to lowest marijuana-use rate for ages 18–25.
+# 3. Selects the top 15 states.
+# 4. Creates a horizontal bar chart for easier state-name readability.
+
 cor_data <- drugs %>%
   select(Marijuana = `Rates.Marijuana.Used Past Month.18-25`,
          Alcohol = `Rates.Alcohol.Use Disorder Past Year.18-25`,
@@ -139,6 +162,9 @@ ggplot(cor_df, aes(x = Var1, y = Var2, fill = Correlation)) +
 ## All Substance Trends
 
 ```{r fig.width=12, fig.height=7}
+# Compare time trends in 18–25 use rates across alcohol, marijuana,
+# tobacco, and cocaine with separate smoothed panels.
+
 drugs %>%
   select(Year, 
          Alcohol = `Rates.Alcohol.Use Past Month.18-25`,
@@ -181,6 +207,9 @@ Compare marijuana usage rates in these 4 early-adopter states vs. all other stat
 ## Marijuana Rates: Early Adopters vs Others
 
 ```{r fig.width=12, fig.height=5}
+# Figure Compare average marijuana-use rates among ages 18–25
+# between early-legalizing states and all other states over time.
+
 early_states <- c("Washington", "Colorado", "Alaska", "Oregon")
 
 drugs %>%
@@ -206,6 +235,13 @@ drugs %>%
 ## Pre vs Post Legalization Trends
 
 ```{r fig.width=12, fig.height=7}
+# This plot shows how past-month marijuana-use rates among ages 18–25
+# changed over time in the four early-adopter states: Washington,
+# Colorado, Alaska, and Oregon. The dashed vertical lines mark the key
+# legalization years in our analysis—2012 for Washington and Colorado,
+# and 2014 for Alaska and Oregon—so we can visually compare trends
+# before and after legalization within each state.
+
 drugs %>%
   filter(State %in% early_states) %>%
   mutate(Period = ifelse(Year < 2012, "Pre-2012", 
@@ -228,6 +264,14 @@ drugs %>%
 
 ::: {style="font-size: 0.6em;"}
 ```{r}
+# Summarize average 18–25 marijuana-use rates before and after legalization
+# for early-adopter states versus all other states. This code computes:
+# (1) each group's average rate before 2012,
+# (2) each group's average rate from 2014 onward, and
+# (3) the absolute and percent increase between those two periods.
+# The printed output provides a simple descriptive comparison of how much
+# marijuana-use rates rose in early adopters relative to other states.
+
 early_states <- c("Washington", "Colorado", "Alaska", "Oregon")
 
 pre_2012 <- drugs %>%
@@ -303,6 +347,13 @@ H_1:\ \mu_{\text{Early growth}} > \mu_{\text{Other growth}}
 $$
 
 ```{r}
+# Test whether early-adopter states experienced larger increases in
+# 18–25 marijuana-use rates than other states. The code compares each
+# state's average pre-legalization rate (2010–2011) with its average
+# post-legalization rate (2015–2016), computes the growth for each state,
+# and then uses a one-sided two-sample t-test to assess whether the mean
+# growth in early-adopter states was greater than in other states.
+
 early_states <- c("Washington", "Colorado", "Alaska", "Oregon")
 
 growth_data <- drugs %>%
@@ -376,6 +427,13 @@ Because $Post_{it}$ is defined separately for each state based on its own legali
 :::
 
 ```{r}
+# This code creates a clean panel with each state's annual 18–25
+# marijuana-use rate and an indicator for whether that observation falls
+# in the post-legalization period. For the four early-adopter states,
+# the post indicator turns on in their legalization year (2012 for
+# Washington and Colorado; 2014 for Alaska and Oregon). For all other
+# states, the indicator stays 0 because they are not treated in this setup.
+
 early_states <- c("Washington", "Colorado", "Alaska", "Oregon")
 
 drugs_q2 <- drugs %>%
@@ -395,6 +453,12 @@ drugs_q2 <- drugs %>%
 ```
 
 ```{r}
+# The model estimates
+# 18–25 marijuana-use rates as a function of year fixed effects and a
+# post-legalization indicator, while including a random intercept for state
+# to account for baseline differences across states. Saving the fitted model
+# avoids rerunning the MCMC each time the analysis file is rendered.
+
 if (file.exists("legalization_model.rds")) {
   legalization_model <- readRDS("legalization_model.rds")
 } else {
@@ -419,6 +483,7 @@ if (file.exists("legalization_model.rds")) {
 ## MCMC Trace
 
 ```{r}
+# Display MCMC traceplots for key model parameters to assess convergence.
 mcmc_trace(
   as.array(legalization_model),
   pars = c("(Intercept)", "Post", "sigma", "Sigma[State:(Intercept),(Intercept)]"),
@@ -433,6 +498,8 @@ The traceplots show good mixing across chains
 ## MCMC Density Overlay
 
 ```{r}
+# Overlay posterior density curves across MCMC chains for key parameters
+# to assess consistency in the sampled posterior distributions.
 mcmc_dens_overlay(
   as.array(legalization_model),
   pars = c("(Intercept)", "Post", "sigma")
@@ -446,6 +513,9 @@ Density overlays are quite consistent across chains. Intercept chains showed sli
 ## Posterior Predictive Check
 
 ```{r}
+# Perform a posterior predictive check to evaluate how well the Bayesian
+# model reproduces the observed marijuana-use data.
+
 pp_check(legalization_model)
 ```
 
